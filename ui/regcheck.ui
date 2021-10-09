@@ -35,6 +35,9 @@
       <height>250</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
    </widget>
    <widget class="QListWidget" name="listWidget_2">
     <property name="geometry">
@@ -44,6 +47,9 @@
       <width>275</width>
       <height>250</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
