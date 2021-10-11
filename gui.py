@@ -1342,10 +1342,13 @@ class Approve(QDialog):
         self.label_2.setText('승인완료')
         self.label.setAlignment(Qt.AlignCenter)
         self.label_2.setAlignment(Qt.AlignCenter)
+        self.pushButton.clicked.connect(self.app_user)
+        self.pushButton_2.clicked.connect(self.un_user)
         self.listset()
 
     def listset(self):
         self.listWidget.clear()
+        self.listWidget_2.clear()
         a = self.collection.find({"approved": False})
         b = self.collection.find({"approved": True, "admin": False})
         for unapp in a:
@@ -1356,32 +1359,17 @@ class Approve(QDialog):
             val = str(app['name'])
             self.listWidget_2.addItem(val)
 
-    # def app_user():  # 승인 안된 회원 리스트에서 선택하여 승인 시켜주는 함수
-    #
-    #     col = collection.find({"approved": False})
-    #     if Unsign_file.curselection():
-    #         i = Unsign_file.curselection()
-    #         num = Unsign_file.index(i)
-    #         sel = col[num]
-    #         print(sel['name'])
-    #         user = sel['name']
-    #         collection.update({"name": user}, {"$set": {"approved": True}})
-    #         list_set()
-    #     else:
-    #         pass
-    #
-    # def un_user():
-    #     col = collection.find({"approved": True, "admin": False})
-    #     if signed_file.curselection():
-    #         i = signed_file.curselection()
-    #         num = signed_file.index(i)
-    #         sel = col[num]
-    #         print(sel['name'])
-    #         user = sel['name']
-    #         collection.update({"name": user}, {"$set": {"approved": False}})
-    #         list_set()
-    #     else:
-    #         pass
+    def app_user(self):  # 승인 안된 회원 리스트에서 선택하여 승인 시켜주는 함수
+        user = self.listWidget.currentItem().text()
+
+        self.collection.update({"name": user}, {"$set": {"approved": True}})
+        self.listset()
+
+    def un_user(self):
+        user = self.listWidget_2.currentItem().text()
+
+        self.collection.update({"name": user}, {"$set": {"approved": False}})
+        self.listset()
 
 
 if __name__ == '__main__':

@@ -1,0 +1,40 @@
+가상환경 설정법
+
+yml 파일을 열고 제일 처음name이랑 마지막 prefix의 경로를 정해준후 
+anaconda 프로프트를 실행한다음  
+conda env create -f env.yml 
+입력하면 yml에서 파일안에 name으로 가상환경 생성되어서 프로그램 바로 실행가능
+
+그래픽 카드로 프로그램을 실행하려면 중간때와같이 
+가상환경 activate 시킨후에
+
+pip uninstall dlib
+git clone https://github.com/davisking/dlib.git
+cd dlib
+mkdir build
+cd build
+cmake .. -DDLIB_USE_CUDA=1 -DUSE_AVX_INSTRUCTIONS=1
+cmake --build .
+cd ..
+python setup.py install
+
+진행해 주어야 한다
+
+
+## 중간
+
+dlib 는 cmake install후 설치
+
+그래픽카드가 있는 컴퓨터일경우 지원하는 버전의 cuda를 설치후
+
+git clone https://github.com/davisking/dlib.git
+cd dlib
+mkdir build
+cd build
+cmake .. -DDLIB_USE_CUDA=1 -DUSE_AVX_INSTRUCTIONS=1
+cmake --build .
+cd ..
+python setup.py install
+
+다음순서대로 dlib를 설치 하면 gpu를 이용하여 연산 가능
+
