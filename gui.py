@@ -24,10 +24,8 @@ import numpy as np
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
 Login = False
 Admin = False
-client = pymongo.MongoClient("mongodb://pjh0903:wlsghd19@cluster0-shard-00-00.xnjn4.mongodb.net:27017,"
-                             "cluster0-shard-00-01.xnjn4.mongodb.net:27017,"
-                             "cluster0-shard-00-02.xnjn4.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas"
-                             "-8epj50-shard-0&authSource=admin&retryWrites=true&w=majority")
+DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read())
+client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'
 
