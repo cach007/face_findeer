@@ -141,33 +141,36 @@ class User_Edit(QMainWindow):
         self.pushButton.clicked.connect(self.Adduser)
 
     def rename(self):
-        encodings = []
-        change = []
-        select = self.listWidget.currentItem().text()
-        print(select)
-        cam = Get_Name()
-        cam.exec_()
-        print(user)
-        file = 'users/' + select
-        new_file = 'users/' + user
-        print(new_file)
-        os.rename(file, new_file)
-        try:
-            data = pickle.loads(open(new_file, "rb").read())
-        except OSError:
-            print('can\'t found ' + user)
+        if self.listWidget.currentItem():
+            encodings = []
+            change = []
+            select = self.listWidget.currentItem().text()
+            print(select)
+            cam = Get_Name()
+            cam.exec_()
+            print(user)
+            file = 'users/' + select
+            new_file = 'users/' + user
+            print(new_file)
+            os.rename(file, new_file)
+            try:
+                data = pickle.loads(open(new_file, "rb").read())
+            except OSError:
+                print('can\'t found ' + user)
 
-        for i in data["encodings"]:
-            encodings.append(i)
-            change.append(user)
+            for i in data["encodings"]:
+                encodings.append(i)
+                change.append(user)
 
-        change_file = {"encodings": encodings, "names": change}
+            change_file = {"encodings": encodings, "names": change}
 
-        files = open(new_file, 'wb')
-        files.write(pickle.dumps(change_file))
-        files.close()
+            files = open(new_file, 'wb')
+            files.write(pickle.dumps(change_file))
+            files.close()
 
-        self.Uplist()
+            self.Uplist()
+        else:
+            QtWidgets.QMessageBox.about(widget, "Error", "이름을 변경할 사용자를 선택하세요.")
 
     def gotolocal(self):
         local = Local_Menu()
@@ -187,27 +190,30 @@ class User_Edit(QMainWindow):
         self.Uplist()
 
     def Deleteuser(self):  # 사용자를 삭제하는 함수
-        select = self.listWidget.currentItem().text()
-        if user:
+
+
+        if self.listWidget.currentItem():
+
+            select = self.listWidget.currentItem().text()
             print(select)
-        else:
-            QtWidgets.QMessageBox.about(widget, "Error", "삭제할 사용자를 선택하세요.")
+            file = 'users/' + select
 
-        file = 'users/' + select
-
-        if os.path.isfile(file):  # 선택한 파일이 존재할경우에
-            response = QMessageBox.question(self, 'Message', 'Are you sure to quit?',
-                                            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            print(response)
-            if response == QMessageBox.Yes:
-                os.remove(file)  # 파일을 삭제한다
-                self.Uplist()
-                QtWidgets.QMessageBox.about(widget, "INFO", "파일" + select + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
+            if os.path.isfile(file):  # 선택한 파일이 존재할경우에
+                response = QMessageBox.question(self, 'Message', 'Are you sure to delete',
+                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                print(response)
+                if response == QMessageBox.Yes:
+                    os.remove(file)  # 파일을 삭제한다
+                    self.Uplist()
+                    QtWidgets.QMessageBox.about(widget, "INFO", "파일" + select + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
+                else:
+                    QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + select + "의 삭제를 취소하였습니다")
             else:
-                QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + select + "의 삭제를 취소하였습니다")
+                QtWidgets.QMessageBox.about(widget, "Error",
+                                            "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
         else:
-            QtWidgets.QMessageBox.about(widget, "Error",
-                                        "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
+
+            QtWidgets.QMessageBox.about(widget, "Error", "삭제할 사용자를 선택하세요.")
 
 
 class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
@@ -530,10 +536,15 @@ class Detect(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def findone(self):
-        user = self.listWidget.currentItem().text()
-        one = Choose_One(user, self.level)
-        widget.addWidget(one)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
+
+        if self.listWidget.currentItem():
+            user = self.listWidget.currentItem().text()
+            one = Choose_One(user, self.level)
+            widget.addWidget(one)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+
+        else:
+            QtWidgets.QMessageBox.about(widget, "Error", "탐색할 사용자를 선택하세요.")
 
 
 class FindAll(QDialog):     # 사용자 전체
@@ -1081,37 +1092,52 @@ class Login_Screen(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def btnClick(self):
-        global user_name
-        db = client["member"]
-        collection = db["member"]
-        Id = self.lineEdit.text()
-        Pass = self.lineEdit_2.text()
-        user_name = Id
-        a = collection.find_one({"name": Id})
+        if self.lineEdit.text() and self.lineEdit_2.text():
 
-        pw = a["password"]
-        pw = pw.encode("utf-8")
-        pw_check = bcrypt.checkpw(Pass.encode("utf-8"), pw)  # 입력값과 해쉬값이 동일한지 확인
-        admin_check = a['approved']  # 관리자가 승인했는지체크 bool
-        admin = a['admin']
+            global user_name
+            db = client["member"]
+            collection = db["member"]
+            print(self.lineEdit.text())
+            Id = self.lineEdit.text()
+            print(Id)
+            Pass = self.lineEdit_2.text()
+            print(Pass)
+            user_name = Id
+            a = collection.find_one({"name": Id})
+            if a:
+                pw = a["password"]
+                pw = pw.encode("utf-8")
+                pw_check = bcrypt.checkpw(Pass.encode("utf-8"), pw)  # 입력값과 해쉬값이 동일한지 확인
+                admin_check = a['approved']  # 관리자가 승인했는지체크 bool
+                admin = a['admin']
 
-        if pw_check:
-            if admin:
-                print("관리자")
-                QMessageBox.about(self, "Admin", "관리자로 로그인되었습니다")
-                adminstate()
-                self.gotoadmin()
+                if pw_check:
+                    if admin:
+                        print("관리자")
+                        QMessageBox.about(self, "Admin", "관리자로 로그인되었습니다")
+                        adminstate()
+                        self.gotoadmin()
 
-            elif admin_check:
-                print('로그인')
-                QMessageBox.about(self, "Success", "로그인되었습니다")
-                loginstate()
-                self.gotomember()
+                    elif admin_check:
+                        print('로그인')
+                        QMessageBox.about(self, "Success", "로그인되었습니다")
+                        loginstate()
+                        self.gotomember()
+                    else:
+                        print('승인안됨')
+                        QMessageBox.about(self, "Warning", "관리자 승인이 되지 않은 사용자입니다")
+
+                else:
+                    print("확인요망")
+                    QMessageBox.about(self, "Warning", "PassWord를 확인해주세요")
+
             else:
-                print('승인안됨')
-                QMessageBox.about(self, "Warning", "관리자 승인이 되지 않은 사용자입니다")
+                print("check")
+                QMessageBox.about(self, "Warning", "Id를 확인해주세요.")
+
+
         else:
-            print("확인요망")
+            QtWidgets.QMessageBox.about(widget, "Error", "Id와 PassWord를 입력해주세요.")
 
 
 class Reg_Screen(QMainWindow):
@@ -1130,28 +1156,31 @@ class Reg_Screen(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def register(self):
-        db = client["member"]
-        collection = db["member"]
-        ID = self.lineEdit.text()
-        Pass = self.lineEdit_2.text()
-        print(type(ID))
-        print(type(Pass))
-        a = collection.find_one({"name": ID})
+        if self.lineEdit.text() and self.lineEdit_2.text():
+            db = client["member"]
+            collection = db["member"]
+            ID = self.lineEdit.text()
+            Pass = self.lineEdit_2.text()
+            print(type(ID))
+            print(type(Pass))
+            a = collection.find_one({"name": ID})
 
-        if a:
-            QMessageBox.about(self, "Warning", "이미 존재하는 아이디 입니다.")
-        else:
-            Pass = bcrypt.hashpw(Pass.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-            a = collection.insert_one({"name": ID, "password": Pass, "approved": False, "admin": False})
-            print(a)
             if a:
-                QMessageBox.about(self, "Success", "가입 되었습니다")
-                self.gotologin()
+                QMessageBox.about(self, "Warning", "이미 존재하는 아이디 입니다.")
             else:
-                QMessageBox.about(self, "Failed", "다시 진행해주세요")
+                Pass = bcrypt.hashpw(Pass.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        self.gotologin()
+                a = collection.insert_one({"name": ID, "password": Pass, "approved": False, "admin": False})
+                print(a)
+                if a:
+                    QMessageBox.about(self, "Success", "가입 되었습니다")
+                    self.gotologin()
+                else:
+                    QMessageBox.about(self, "Failed", "다시 진행해주세요")
+
+            self.gotologin()
+        else:
+            QtWidgets.QMessageBox.about(widget, "Error", "Id와 PassWord를 입력해주세요.")
 
 
 class Member_Page(QMainWindow):
@@ -1213,30 +1242,34 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def download(self):
+        if self.listWidget.currentItem():
+            db_user = self.listWidget.currentItem().text()
+            print(db_user)
 
-        db_user = self.listWidget.currentItem().text()
-        print(db_user)
+            knownEncodings = []
+            knownNames = []
 
-        knownEncodings = []
-        knownNames = []
+            if db_user in listdir(data_path):
+                pass
 
-        if db_user in listdir(data_path):
-            pass
+            collection = self.db[db_user]
+            result = collection.find({"name": db_user},{"_id": False})
 
-        collection = self.db[db_user]
-        result = collection.find({"name": db_user},{"_id": False})
+            for r in result:
+                knownEncodings.append((r["128d"]))
+                knownNames.append(db_user)
 
-        for r in result:
-            knownEncodings.append((r["128d"]))
-            knownNames.append(db_user)
+            data = {"encodings": knownEncodings, "names": knownNames}
+            createFolder(data_path)
+            f = open(data_path + db_user, 'wb')
+            print(data)
+            f.write(pickle.dumps(data))
+            f.close()
+            print(db_user + 'download 완료')
+            QtWidgets.QMessageBox.about(widget, "Success", db_user + " 다운로드 완료.")
 
-        data = {"encodings": knownEncodings, "names": knownNames}
-        createFolder(data_path)
-        f = open(data_path + db_user, 'wb')
-        print(data)
-        f.write(pickle.dumps(data))
-        f.close()
-        print(db_user + 'download 완료')
+        else:
+            QtWidgets.QMessageBox.about(widget, "Error", "다운로드할 사용자를 선택하세요")
 
     def switch(self):
         dbup = DB_Upload(self.level)
@@ -1244,12 +1277,17 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def delete(self):
-        user = self.listWidget.currentItem().text()
-        print(user)
-        collection = self.db[user]
-        collection.drop()
-        print(user + '삭제완료')
-        self.listset()
+        if self.listWidget.currentItem():
+            user = self.listWidget.currentItem().text()
+            print(user)
+            collection = self.db[user]
+            collection.drop()
+            print(user + '삭제완료')
+            self.listset()
+            QtWidgets.QMessageBox.about(widget, "Success", user + " 삭제완료")
+
+        else:
+            QtWidgets.QMessageBox.about(widget, "Error", "삭제할 사용자를 선택하세요")
 
 
 class DB_Upload(QMainWindow):
@@ -1287,14 +1325,18 @@ class DB_Upload(QMainWindow):
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def upload(self):
-        user = self.listWidget.currentItem().text()
-        print(user)
-        data = pickle.loads(open('users/' + user, "rb").read())
-        collection = self.db[user]
-        for encoding in data["encodings"]:
-            collection.insert_one({"128d": list(encoding), "name": user})
+        if self.listWidget.currentItem():
+            user = self.listWidget.currentItem().text()
+            print(user)
+            data = pickle.loads(open('users/' + user, "rb").read())
+            collection = self.db[user]
+            for encoding in data["encodings"]:
+                collection.insert_one({"128d": list(encoding), "name": user})
 
-        print("upload완료")
+            print("upload완료")
+            QtWidgets.QMessageBox.about(widget, "Success", user + " 업로드 완료")
+        else:
+            QtWidgets.QMessageBox.about(widget, "Error", "업로드할 사용자를 선택하세요")
 
     def switch(self):   # download 로 바꿔줌
         dbdown = DB_Download(self.level)
@@ -1302,27 +1344,25 @@ class DB_Upload(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def delete(self):
-        user = self.listWidget.currentItem().text()
-        if user:
-            print(user)
-        else:
-            QtWidgets.QMessageBox.about(widget, "Error", "삭제할 사용자를 선택하세요.")
+        if self.listWidget.currentItem():
+            user = self.listWidget.currentItem().text()
+            file = 'users/' + user
 
-        file = 'users/' + user
-
-        if os.path.isfile(file):  # 선택한 파일이 존재할경우에
-            response = QMessageBox.question(self, 'Message', 'Are you sure to delete?',
-                                            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            print(response)
-            if response == QMessageBox.Yes:
-                os.remove(file)  # 파일을 삭제한다
-                self.listset()
-                QtWidgets.QMessageBox.about(widget, "INFO", "파일" + user + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
+            if os.path.isfile(file):  # 선택한 파일이 존재할경우에
+                response = QMessageBox.question(self, 'Message', 'Are you sure to delete?',
+                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                print(response)
+                if response == QMessageBox.Yes:
+                    os.remove(file)  # 파일을 삭제한다
+                    self.listset()
+                    QtWidgets.QMessageBox.about(widget, "INFO", "파일" + user + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
+                else:
+                    QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + user + "의 삭제를 취소하였습니다")
             else:
-                QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + user + "의 삭제를 취소하였습니다")
+                QtWidgets.QMessageBox.about(widget, "Error",
+                                            "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
         else:
-            QtWidgets.QMessageBox.about(widget, "Error",
-                                        "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
+            QtWidgets.QMessageBox.about(widget, "CANCEL", "삭제할 사용자를 선택해주세요")
 
 
 class Admin_Page(QMainWindow):
@@ -1350,8 +1390,8 @@ class Admin_Page(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def gotoapp(self):
-        app = Approve()
-        app.exec_()
+        apr = Approve()
+        apr.exec_()
 
 
 class Approve(QDialog):
@@ -1364,36 +1404,50 @@ class Approve(QDialog):
         self.collection = self.db["member"]
         self.label.setText('승인대기')
         self.label_2.setText('승인완료')
+        self.listset()
         self.label.setAlignment(Qt.AlignCenter)
         self.label_2.setAlignment(Qt.AlignCenter)
+
         self.pushButton.clicked.connect(self.app_user)
+
         self.pushButton_2.clicked.connect(self.un_user)
-        self.listset()
 
     def listset(self):
         self.listWidget.clear()
         self.listWidget_2.clear()
+
         a = self.collection.find({"approved": False})
         b = self.collection.find({"approved": True, "admin": False})
+        print(a)
         for unapp in a:
-            val = str(unapp['name'])
-            self.listWidget.addItem(val)
+
+            self.listWidget.addItem(unapp['name'])
 
         for app in b:
-            val = str(app['name'])
-            self.listWidget_2.addItem(val)
+
+            self.listWidget_2.addItem(app['name'])
 
     def app_user(self):  # 승인 안된 회원 리스트에서 선택하여 승인 시켜주는 함수
-        user = self.listWidget.currentItem().text()
 
-        self.collection.update({"name": user}, {"$set": {"approved": True}})
-        self.listset()
+        if self.listWidget.currentItem():
+            selected_user = self.listWidget.currentItem().text()
+            print(selected_user)
+
+            self.collection.update({"name": selected_user}, {"$set": {"approved": True}})
+            self.listset()
+        else:
+            print("check")
 
     def un_user(self):
-        user = self.listWidget_2.currentItem().text()
+        if self.listWidget_2.currentItem():
 
-        self.collection.update({"name": user}, {"$set": {"approved": False}})
-        self.listset()
+            selected_user = self.listWidget_2.currentItem().text()
+            print(selected_user)
+
+            self.collection.update({"name": selected_user}, {"$set": {"approved": False}})
+            self.listset()
+        else:
+            print("2222")
 
 
 if __name__ == '__main__':

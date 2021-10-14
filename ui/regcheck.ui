@@ -38,6 +38,12 @@
     <property name="styleSheet">
      <string notr="true">color: rgb(255, 255, 255);</string>
     </property>
+    <property name="spacing">
+     <number>-1</number>
+    </property>
+    <property name="currentRow">
+     <number>-1</number>
+    </property>
    </widget>
    <widget class="QListWidget" name="listWidget_2">
     <property name="geometry">
@@ -50,6 +56,15 @@
     </property>
     <property name="styleSheet">
      <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="autoScrollMargin">
+     <number>16</number>
+    </property>
+    <property name="spacing">
+     <number>-1</number>
+    </property>
+    <property name="currentRow">
+     <number>-1</number>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
