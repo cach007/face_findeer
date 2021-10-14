@@ -24,7 +24,7 @@ import numpy as np
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
 Login = False
 Admin = False
-DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read())
+DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read()) # 데이터베이스 비밀번호를 담고 있는 피클 파일을 연다
 client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'
@@ -132,22 +132,47 @@ class User_Edit(QMainWindow):
         loadUi("ui/useredit.ui", self)
         self.setFixedHeight(600)
         self.setFixedWidth(400)
-        self.AddItem()
+        self.Uplist()
         self.label.setAlignment(Qt.AlignCenter)
         self.backButton.clicked.connect(self.gotolocal)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
         self.pushButton_2.clicked.connect(self.Deleteuser)
+        self.pushButton_4.clicked.connect(self.rename)
         self.pushButton.clicked.connect(self.Adduser)
+
+    def rename(self):
+        encodings = []
+        change = []
+        select = self.listWidget.currentItem().text()
+        print(select)
+        cam = Get_Name()
+        cam.exec_()
+        print(user)
+        file = 'users/' + select
+        new_file = 'users/' + user
+        print(new_file)
+        os.rename(file, new_file)
+        try:
+            data = pickle.loads(open(new_file, "rb").read())
+        except OSError:
+            print('can\'t found ' + user)
+
+        for i in data["encodings"]:
+            encodings.append(i)
+            change.append(user)
+
+        change_file = {"encodings": encodings, "names": change}
+
+        files = open(new_file, 'wb')
+        files.write(pickle.dumps(change_file))
+        files.close()
+
+        self.Uplist()
 
     def gotolocal(self):
         local = Local_Menu()
         widget.addWidget(local)
         widget.setCurrentIndex(widget.currentIndex() + 1)
-
-    def AddItem(self):
-        load_data(data_path)
-        for data in onlyfiles:
-            self.listWidget.addItem(data)
 
     def Uplist(self):  # 리스트에 사용자를 추가하거나 삭제할시 리스트를 갱신해주는 함수
         self.listWidget.clear()
@@ -159,15 +184,16 @@ class User_Edit(QMainWindow):
         add = Add_User()
         widget.addWidget(add)
         widget.setCurrentIndex(widget.currentIndex() + 1)
+        self.Uplist()
 
     def Deleteuser(self):  # 사용자를 삭제하는 함수
-        user = self.listWidget.currentItem().text()
+        select = self.listWidget.currentItem().text()
         if user:
-            print(user)
+            print(select)
         else:
             QtWidgets.QMessageBox.about(widget, "Error", "삭제할 사용자를 선택하세요.")
 
-        file = 'users/' + user
+        file = 'users/' + select
 
         if os.path.isfile(file):  # 선택한 파일이 존재할경우에
             response = QMessageBox.question(self, 'Message', 'Are you sure to quit?',
@@ -176,9 +202,9 @@ class User_Edit(QMainWindow):
             if response == QMessageBox.Yes:
                 os.remove(file)  # 파일을 삭제한다
                 self.Uplist()
-                QtWidgets.QMessageBox.about(widget, "INFO", "파일" + user + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
+                QtWidgets.QMessageBox.about(widget, "INFO", "파일" + select + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
             else:
-                QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + user + "의 삭제를 취소하였습니다")
+                QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + select + "의 삭제를 취소하였습니다")
         else:
             QtWidgets.QMessageBox.about(widget, "Error",
                                         "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
