@@ -14,8 +14,9 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:rgb(83, 181, 255);
-color:rgb(255, 255, 255);</string>
+   <string notr="true">background-color:rgba(16,30,41,240);
+color:rgb(255, 255, 255);
+</string>
   </property>
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
@@ -224,8 +225,6 @@ background-color:rgb(255, 170, 0);
    </widget>
   </widget>
  </widget>
- <resources>
-  <include location="../../Desktop/resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

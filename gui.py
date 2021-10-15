@@ -170,7 +170,7 @@ class User_Edit(QMainWindow):
 
             self.Uplist()
         else:
-            QtWidgets.QMessageBox.about(widget, "Error", "이름을 변경할 사용자를 선택하세요.")
+            QMessageBox.about(self, "Error", "이름을 변경할 사용자를 선택하세요.")
 
     def gotolocal(self):
         local = Local_Menu()
@@ -191,7 +191,6 @@ class User_Edit(QMainWindow):
 
     def Deleteuser(self):  # 사용자를 삭제하는 함수
 
-
         if self.listWidget.currentItem():
 
             select = self.listWidget.currentItem().text()
@@ -205,15 +204,15 @@ class User_Edit(QMainWindow):
                 if response == QMessageBox.Yes:
                     os.remove(file)  # 파일을 삭제한다
                     self.Uplist()
-                    QtWidgets.QMessageBox.about(widget, "INFO", "파일" + select + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
+                    QMessageBox.about(self, "INFO", "파일" + select + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
                 else:
-                    QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + select + "의 삭제를 취소하였습니다")
+                    QMessageBox.about(self, "CANCEL", "파일" + select + "의 삭제를 취소하였습니다")
             else:
-                QtWidgets.QMessageBox.about(widget, "Error",
+                QMessageBox.about(self, "Error",
                                             "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
         else:
 
-            QtWidgets.QMessageBox.about(widget, "Error", "삭제할 사용자를 선택하세요.")
+            QMessageBox.about(self, "Error", "삭제할 사용자를 선택하세요.")
 
 
 class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
@@ -271,7 +270,7 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
 
                     if not boxes:  # 이미지에 얼굴이 없을겨우 종료
                         print("인식 실패")
-                        QtWidgets.QMessageBox.about(widget, "Error", "식별이 안되는 이미지가 있습니다.")
+                        QMessageBox.about(self, "Error", "식별이 안되는 이미지가 있습니다.")
                         return 0
 
                     for encoding in encodings:
@@ -285,7 +284,7 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
                 print(data)
                 f.write(pickle.dumps(data))
                 f.close()
-                QtWidgets.QMessageBox.about(widget, "INFO", "사용자 등록 완료.")
+                QMessageBox.about(self, "INFO", "사용자 등록 완료.")
 
 
 class Get_Name(QDialog):
@@ -544,7 +543,7 @@ class Detect(QMainWindow):
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
         else:
-            QtWidgets.QMessageBox.about(widget, "Error", "탐색할 사용자를 선택하세요.")
+            QMessageBox.about(self, "Error", "탐색할 사용자를 선택하세요.")
 
 
 class FindAll(QDialog):     # 사용자 전체
@@ -635,7 +634,7 @@ class FindAll(QDialog):     # 사용자 전체
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
             else:
-                QtWidgets.QMessageBox.about(widget, "Error", "Cannot read frame.")
+                QMessageBox.about(self, "Error", "Cannot read frame.")
                 print("cannot read frame.")
                 break
         cap.release()
@@ -707,7 +706,7 @@ class FindAll(QDialog):     # 사용자 전체
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
             else:
-                QtWidgets.QMessageBox.about(widget, "Error", "Cannot read frame.")
+                QMessageBox.about(self, "Error", "Cannot read frame.")
                 print("cannot read frame.")
                 break
         cap.release()
@@ -895,7 +894,7 @@ class Camera(QDialog):
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
             else:
-                QtWidgets.QMessageBox.about(widget, "Error", "Cannot read frame.")
+                QMessageBox.about(self, "Error", "Cannot read frame.")
                 print("cannot read frame.")
                 break
         cap.release()
@@ -969,7 +968,7 @@ class Camera(QDialog):
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
             else:
-                QtWidgets.QMessageBox.about(widget, "Error", "Cannot read frame.")
+                QMessageBox.about(self, "Error", "Cannot read frame.")
                 print("cannot read frame.")
                 break
         cap.release()
@@ -1137,7 +1136,7 @@ class Login_Screen(QMainWindow):
 
 
         else:
-            QtWidgets.QMessageBox.about(widget, "Error", "Id와 PassWord를 입력해주세요.")
+            QMessageBox.about(self, "Error", "Id와 PassWord를 입력해주세요.")
 
 
 class Reg_Screen(QMainWindow):
@@ -1148,12 +1147,29 @@ class Reg_Screen(QMainWindow):
         self.setFixedWidth(400)
         self.backButton.clicked.connect(self.gotologin)
         self.pushButton.clicked.connect(self.register)
+        self.pushButton_2.clicked.connect(self.checker)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
 
     def gotologin(self):
         login = Login_Screen()
         widget.addWidget(login)
         widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    def checker(self):
+        if self.lineEdit.text():
+            db = client["member"]
+            collection = db["member"]
+            ID = self.lineEdit.text()
+            a = collection.find_one({"name": ID})
+            if a:
+                QMessageBox.about(self, "Warning", "이미 존재하는 아이디 입니다.")
+            else:
+                QMessageBox.about(self, "INFO", "사용가능한 아이디 입니다.")
+                self.pushButton.setEnabled(True)
+                self.lineEdit.setDisabled(True)             # 아이디 검사 되면 못바꾸게 잠구기
+
+        else:
+            QMessageBox.about(self, "Warning", "아이디를 입력해주세요.")
 
     def register(self):
         if self.lineEdit.text() and self.lineEdit_2.text():
@@ -1180,7 +1196,7 @@ class Reg_Screen(QMainWindow):
 
             self.gotologin()
         else:
-            QtWidgets.QMessageBox.about(widget, "Error", "Id와 PassWord를 입력해주세요.")
+            QMessageBox.about(self, "Error", "Id와 PassWord를 입력해주세요.")
 
 
 class Member_Page(QMainWindow):
@@ -1266,10 +1282,10 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
             f.write(pickle.dumps(data))
             f.close()
             print(db_user + 'download 완료')
-            QtWidgets.QMessageBox.about(widget, "Success", db_user + " 다운로드 완료.")
+            QMessageBox.about(self, "Success", db_user + " 다운로드 완료.")
 
         else:
-            QtWidgets.QMessageBox.about(widget, "Error", "다운로드할 사용자를 선택하세요")
+            QMessageBox.about(self, "Error", "다운로드할 사용자를 선택하세요")
 
     def switch(self):
         dbup = DB_Upload(self.level)
@@ -1284,10 +1300,10 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
             collection.drop()
             print(user + '삭제완료')
             self.listset()
-            QtWidgets.QMessageBox.about(widget, "Success", user + " 삭제완료")
+            QMessageBox.about(self, "Success", user + " 삭제완료")
 
         else:
-            QtWidgets.QMessageBox.about(widget, "Error", "삭제할 사용자를 선택하세요")
+            QMessageBox.about(self, "Error", "삭제할 사용자를 선택하세요")
 
 
 class DB_Upload(QMainWindow):
@@ -1334,9 +1350,9 @@ class DB_Upload(QMainWindow):
                 collection.insert_one({"128d": list(encoding), "name": user})
 
             print("upload완료")
-            QtWidgets.QMessageBox.about(widget, "Success", user + " 업로드 완료")
+            QMessageBox.about(self, "Success", user + " 업로드 완료")
         else:
-            QtWidgets.QMessageBox.about(widget, "Error", "업로드할 사용자를 선택하세요")
+            QMessageBox.about(self, "Error", "업로드할 사용자를 선택하세요")
 
     def switch(self):   # download 로 바꿔줌
         dbdown = DB_Download(self.level)
@@ -1355,14 +1371,14 @@ class DB_Upload(QMainWindow):
                 if response == QMessageBox.Yes:
                     os.remove(file)  # 파일을 삭제한다
                     self.listset()
-                    QtWidgets.QMessageBox.about(widget, "INFO", "파일" + user + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
+                    QMessageBox.about(self, "INFO", "파일" + user + "의 삭제가 완료 되었습니다")  # 삭제완료 메세지 박스로 알려준다
                 else:
-                    QtWidgets.QMessageBox.about(widget, "CANCEL", "파일" + user + "의 삭제를 취소하였습니다")
+                    QMessageBox.about(self, "CANCEL", "파일" + user + "의 삭제를 취소하였습니다")
             else:
-                QtWidgets.QMessageBox.about(widget, "Error",
+                QMessageBox.about(self, "Error",
                                             "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
         else:
-            QtWidgets.QMessageBox.about(widget, "CANCEL", "삭제할 사용자를 선택해주세요")
+            QMessageBox.about(self, "CANCEL", "삭제할 사용자를 선택해주세요")
 
 
 class Admin_Page(QMainWindow):
