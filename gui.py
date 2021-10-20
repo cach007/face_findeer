@@ -2,7 +2,6 @@ import os
 import pickle
 import sys
 import time
-
 import dlib
 import cv2
 import face_recognition
@@ -20,11 +19,13 @@ from PyQt5.QtGui import QPixmap, QImage
 import pymongo
 import bcrypt
 import numpy as np
+import img
+
 
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
 Login = False
 Admin = False
-DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read()) # 데이터베이스 비밀번호를 담고 있는 피클 파일을 연다
+DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read())     # 데이터베이스 비밀번호를 담고 있는 피클 파일을 연다
 client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'

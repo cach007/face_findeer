@@ -115,7 +115,17 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>U s e r   A d d</string>
+     <string>User Add</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/add-friend.png</normaloff>:/newPrefix/add-friend.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>35</width>
+      <height>35</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
@@ -153,7 +163,17 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>U s e r   D e l e t e</string>
+     <string>User Delete</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/remove-user.png</normaloff>:/newPrefix/remove-user.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>35</width>
+      <height>35</height>
+     </size>
     </property>
    </widget>
    <widget class="QFrame" name="frame">
@@ -275,11 +295,23 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>R e n a m e</string>
+     <string>Rename</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/shift.png</normaloff>:/newPrefix/shift.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>35</width>
+      <height>35</height>
+     </size>
     </property>
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../img/img.qrc"/>
+ </resources>
  <connections/>
 </ui>

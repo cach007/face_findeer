@@ -116,7 +116,17 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>U s e r   D e t e c t</string>
+     <string>Find one</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/user.png</normaloff>:/newPrefix/user.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>35</width>
+      <height>35</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
@@ -154,7 +164,17 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>F i n d   A l l</string>
+     <string>Find All</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/community.png</normaloff>:/newPrefix/community.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>35</width>
+      <height>35</height>
+     </size>
     </property>
    </widget>
    <widget class="QFrame" name="frame">
@@ -243,6 +263,8 @@ background-color:rgb(255, 170, 0);
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../img/img.qrc"/>
+ </resources>
  <connections/>
 </ui>

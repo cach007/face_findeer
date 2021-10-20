@@ -66,7 +66,17 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>U p l o a d   F i l e</string>
+     <string>U p l o a d</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/upload.png</normaloff>:/newPrefix/upload.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_2">
@@ -200,7 +210,17 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>D e l e t e   F i l e</string>
+     <string>D e l e t e</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/remove-user.png</normaloff>:/newPrefix/remove-user.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_5">
@@ -239,6 +259,16 @@ background-color:rgba(2,65,118, 255);
     </property>
     <property name="text">
      <string>S w i t c h</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/download.png</normaloff>:/newPrefix/download.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
     </property>
    </widget>
    <widget class="QListWidget" name="listWidget">
@@ -302,6 +332,8 @@ background-color:rgb(255, 170, 0);
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../img/img.qrc"/>
+ </resources>
  <connections/>
 </ui>

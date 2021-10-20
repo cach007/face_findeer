@@ -27,6 +27,12 @@ color:rgb(255, 255, 255);
      <height>600</height>
     </rect>
    </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="styleSheet">
     <string notr="true">background-color:rgba(16,30,41,240);
 </string>
@@ -34,11 +40,17 @@ color:rgb(255, 255, 255);
    <widget class="QPushButton" name="detectButton">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>79</x>
       <y>170</y>
-      <width>240</width>
+      <width>241</width>
       <height>40</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="font">
      <font>
@@ -50,6 +62,8 @@ color:rgb(255, 255, 255);
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton#detectButton{
+
+
 background-color:rgba(2,65,118,255);
 color:rgba(255, 255, 255, 200);
 border-radius:5px;
@@ -66,7 +80,20 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>D e t e c t   U s e r</string>
+     <string>D e t e c t</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/face-detection (1).png</normaloff>:/newPrefix/face-detection (1).png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>35</width>
+      <height>35</height>
+     </size>
+    </property>
+    <property name="default">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_3">
@@ -107,6 +134,12 @@ background-color:rgb(255, 170, 0);
       <height>40</height>
      </rect>
     </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
     <property name="font">
      <font>
       <family>Agency FB</family>
@@ -134,7 +167,17 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>L o g  I n</string>
+     <string>L o g I n</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/log-in.png</normaloff>:/newPrefix/log-in.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>25</height>
+     </size>
     </property>
    </widget>
    <widget class="QPushButton" name="userButton">
@@ -145,6 +188,12 @@ background-color:rgba(2,65,118, 255);
       <width>240</width>
       <height>40</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="font">
      <font>
@@ -173,6 +222,19 @@ background-color:rgba(2,65,118, 255);
     </property>
     <property name="text">
      <string>U s e r s</string>
+    </property>
+    <property name="icon">
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/community.png</normaloff>:/newPrefix/community.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>35</height>
+     </size>
+    </property>
+    <property name="shortcut">
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="backButton">
@@ -215,6 +277,8 @@ background-color:rgb(255, 170, 0);
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../img/img.qrc"/>
+ </resources>
  <connections/>
 </ui>
