@@ -311,8 +311,8 @@ class Add_Cam(QDialog):
         super().__init__()
         loadUi("ui/local.ui", self)
         self.user = user
-        self.setFixedHeight(700)
-        self.setFixedWidth(800)
+        self.setFixedHeight(740)
+        self.setFixedWidth(900)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
@@ -551,8 +551,8 @@ class FindAll(QDialog):     # 사용자 전체
     def __init__(self, url):
         super().__init__()
         loadUi("ui/local.ui", self)
-        self.setFixedHeight(700)
-        self.setFixedHeight(800)
+        self.setFixedHeight(740)
+        self.setFixedHeight(900)
         self.url = url
         self.scaler = 0.5
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -654,6 +654,15 @@ class FindAll(QDialog):     # 사용자 전체
 
         data = {"encodings": knownEncodings, "names": knownNames}
 
+        width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+        testW = 720 / width
+        testH = 480 / height
+        self.label.resize(testW, testW)
+        print(width, height)
+        print(testW, testH)
+
         global running
 
         while running:
@@ -661,7 +670,7 @@ class FindAll(QDialog):     # 사용자 전체
             if ret:
 
                 img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                img = cv2.resize(img, (int(img.shape[1] * self.scaler), int(img.shape[0] * self.scaler)))
+                img = cv2.resize(img, (int(img.shape[1] * testW), int(img.shape[0] * testH)))
 
                 boxes = face_recognition.face_locations(img, model='CNN')
                 encodings = face_recognition.face_encodings(img, boxes)
@@ -808,8 +817,8 @@ class Camera(QDialog):
         self.user = user
         self.url = url
         self.scaler = 0.5
-        self.setFixedHeight(700)
-        self.setFixedWidth(800)
+        self.setFixedHeight(740)
+        self.setFixedWidth(900)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
@@ -847,6 +856,7 @@ class Camera(QDialog):
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.label.resize(width, height)
+
         while running:
             ret, img = cap.read()
             if ret:
@@ -916,6 +926,14 @@ class Camera(QDialog):
 
         data = {"encodings": knownEncodings, "names": knownNames}
 
+        width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+        testW = 720/width
+        testH = 480/height
+        self.label.resize(testW, testW)
+        print(width, height)
+        print(testW, testH)
         global running
 
         while running:
@@ -923,7 +941,7 @@ class Camera(QDialog):
             if ret:
 
                 img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                img = cv2.resize(img, (int(img.shape[1] * self.scaler), int(img.shape[0] * self.scaler)))
+                img = cv2.resize(img, (int(img.shape[1] * testW), int(img.shape[0] * testH)))
 
                 boxes = face_recognition.face_locations(img, model='CNN')
                 encodings = face_recognition.face_encodings(img, boxes)

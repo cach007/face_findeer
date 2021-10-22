@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>700</height>
+    <width>900</width>
+    <height>740</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,8 +23,8 @@ color:rgb(255, 255, 255);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>810</width>
-     <height>710</height>
+     <width>900</width>
+     <height>740</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -33,9 +33,9 @@ color:rgb(255, 255, 255);
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>120</y>
-      <width>640</width>
+      <x>100</x>
+      <y>150</y>
+      <width>720</width>
       <height>480</height>
      </rect>
     </property>
@@ -46,8 +46,8 @@ color:rgb(255, 255, 255);
    <widget class="QPushButton" name="backButton">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>30</y>
+      <x>850</x>
+      <y>20</y>
       <width>51</width>
       <height>41</height>
      </rect>
