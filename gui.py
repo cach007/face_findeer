@@ -21,11 +21,10 @@ import bcrypt
 import numpy as np
 import img
 
-
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
 Login = False
 Admin = False
-DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read())     # 데이터베이스 비밀번호를 담고 있는 피클 파일을 연다
+DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read())  # 데이터베이스 비밀번호를 담고 있는 피클 파일을 연다
 client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'
@@ -33,11 +32,12 @@ user = 'none'
 
 def load_data(path):  # 리스트 파일 로드 함수
     # 폴더가 있을때 파일이 없는경우 onlyfiles 폴더를 만들지 못함
-    global onlyfiles
     try:  # 폴더가 있는경우
         onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]  # users 폴더에 존재하는 모든 파일을 배열로 저장한다
     except OSError:  # 폴더 없는 경우 에러 메시지
         onlyfiles = []
+
+    return onlyfiles
 
 
 def createFolder(directory):  # 폴더 생성 함수
@@ -180,7 +180,7 @@ class User_Edit(QMainWindow):
 
     def Uplist(self):  # 리스트에 사용자를 추가하거나 삭제할시 리스트를 갱신해주는 함수
         self.listWidget.clear()
-        load_data(data_path)
+        onlyfiles = load_data(data_path)
         for data in onlyfiles:
             self.listWidget.addItem(data)
 
@@ -210,7 +210,7 @@ class User_Edit(QMainWindow):
                     QMessageBox.about(self, "CANCEL", "파일" + select + "의 삭제를 취소하였습니다")
             else:
                 QMessageBox.about(self, "Error",
-                                            "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
+                                  "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
         else:
 
             QMessageBox.about(self, "Error", "삭제할 사용자를 선택하세요.")
@@ -227,15 +227,34 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
         self.pushButton_4.clicked.connect(self.runimage)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
 
+    def name_check(self):
+        onlyfiles = load_data(data_path)
+        for i in onlyfiles:
+            if i == user:
+                print(i)
+                return True
+        return False
+
     def getname(self):
+        global user
         cam = Get_Name()
         cam.exec_()
         print(user)
-        if user != 'none':
-            addcam = Add_Cam(user)
-            addcam.exec_()
+        ready = self.name_check()
+        print(ready)
 
-    def gotoedit(self):
+        if ready:
+            user = 'none'
+            QMessageBox.about(self, 'Warning', '이미 해당 이름의 파일이 존재합니다.')
+
+        elif user != 'none':
+            addcam = Add_Cam(user)
+            user = 'none'
+            addcam.exec_()
+        else:
+            QMessageBox.about(self, "Warning", "사용자 등록을 취소합니다.")
+
+    def gotoedit(self):  # 이전페이지로 돌아가는 함수
         edit = User_Edit()
         widget.addWidget(edit)
         widget.setCurrentIndex(widget.currentIndex() + 1)
@@ -248,10 +267,18 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
         print(select_folder)
 
     def runimage(self):
+        global user
         cam = Get_Name()
         cam.exec_()
+        print(user)
+        ready = self.name_check()
+        print(ready)
 
-        if user != 'none':
+        if ready:
+            user = 'none'
+            QMessageBox.about(self, 'Warning', '이미 해당 이름의 파일이 존재합니다.')
+
+        elif user != 'none':
             self.dest_folder()
             if select_folder != '/':
                 knownEncodings = []
@@ -285,7 +312,10 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
                 print(data)
                 f.write(pickle.dumps(data))
                 f.close()
+                user = 'none'
                 QMessageBox.about(self, "INFO", "사용자 등록 완료.")
+        else:
+            QMessageBox.about(self, "Warning", "사용자 등록을 취소합니다.")
 
 
 class Get_Name(QDialog):
@@ -311,8 +341,8 @@ class Add_Cam(QDialog):
         super().__init__()
         loadUi("ui/local.ui", self)
         self.user = user
-        self.setFixedHeight(740)
-        self.setFixedWidth(900)
+        self.setFixedHeight(660)
+        self.setFixedWidth(880)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
@@ -427,7 +457,8 @@ class Choose_One(QMainWindow):
         cam.exec_()
 
     def imgone(self):
-        image_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image')
+        image_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image', '',
+                                                           'image(*.png *.jpg);;All File(*)')
         img = image_file[0]
         if img:
             cam = Camera(self.user, img)
@@ -437,7 +468,8 @@ class Choose_One(QMainWindow):
             pass
 
     def videone(self):
-        video_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image')
+        video_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image', '',
+                                                           'Video(*.mp4 *.avi);; All File(*)')
         video = video_file[0]
         if video:
             cam = Camera(self.user, video)
@@ -478,7 +510,8 @@ class Choose_All(QMainWindow):
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def imgall(self):
-        image_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image')
+        image_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image', '',
+                                                           'Image(*.png *.jpg);;All File(*)')
         img = image_file[0]
         if img:
             cam = FindAll(img)
@@ -488,7 +521,8 @@ class Choose_All(QMainWindow):
             pass
 
     def videall(self):
-        video_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image')
+        video_file = QtWidgets.QFileDialog.getOpenFileName(self, 'select image', '',
+                                                           'Video(*.mp4 *.avi);; All File(*)')
         video = video_file[0]
         if video:
             cam = FindAll(video)
@@ -496,7 +530,7 @@ class Choose_All(QMainWindow):
             cam.exec()
 
 
-class Detect(QMainWindow):  
+class Detect(QMainWindow):
     def __init__(self, level):
         super().__init__()
         loadUi("ui/listest.ui", self)
@@ -526,7 +560,7 @@ class Detect(QMainWindow):
 
     def AddItem(self):
         self.listWidget.clear()
-        load_data(data_path)
+        onlyfiles = load_data(data_path)
         for data in onlyfiles:
             self.listWidget.addItem(data)
 
@@ -547,12 +581,12 @@ class Detect(QMainWindow):
             QMessageBox.about(self, "Error", "탐색할 사용자를 선택하세요.")
 
 
-class FindAll(QDialog):     # 사용자 전체
+class FindAll(QDialog):  # 사용자 전체
     def __init__(self, url):
         super().__init__()
         loadUi("ui/local.ui", self)
-        self.setFixedHeight(740)
-        self.setFixedHeight(900)
+        self.setFixedWidth(880)
+        self.setFixedHeight(660)
         self.url = url
         self.scaler = 0.5
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -574,7 +608,7 @@ class FindAll(QDialog):     # 사용자 전체
         knownEncodings = []
         knownNames = []
 
-        load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
+        onlyfiles = load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
         for i in onlyfiles:  # 리스트에 존재하는 파일 순서대로 입력
             u_data = pickle.loads(open('users/' + i, "rb").read())
             for encoding in u_data["encodings"]:
@@ -645,7 +679,7 @@ class FindAll(QDialog):     # 사용자 전체
         knownEncodings = []
         knownNames = []
 
-        load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
+        onlyfiles = load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
         for i in onlyfiles:  # 리스트에 존재하는 파일 순서대로 입력
             u_data = pickle.loads(open('users/' + i, "rb").read())
             for encoding in u_data["encodings"]:
@@ -657,8 +691,14 @@ class FindAll(QDialog):     # 사용자 전체
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
-        testW = 720 / width
-        testH = 480 / height
+        if width > height:
+            testW = 680 / width
+            testH = 360 / height
+
+        else:
+            testW = 360 / width
+            testH = 620 / height
+            self.label.setGeometry(260, 20, 360, 620)
         self.label.resize(testW, testW)
         print(width, height)
         print(testW, testH)
@@ -715,6 +755,7 @@ class FindAll(QDialog):     # 사용자 전체
                 qImg = QtGui.QImage(img.data, w, h, w * c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
+
             else:
                 QMessageBox.about(self, "Error", "Cannot read frame.")
                 print("cannot read frame.")
@@ -726,7 +767,7 @@ class FindAll(QDialog):     # 사용자 전체
         knownEncodings = []
         knownNames = []
 
-        load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
+        onlyfiles = load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
         for i in onlyfiles:  # 리스트에 존재하는 파일 순서대로 입력
             u_data = pickle.loads(open('users/' + i, "rb").read())
             for encoding in u_data["encodings"]:
@@ -817,8 +858,8 @@ class Camera(QDialog):
         self.user = user
         self.url = url
         self.scaler = 0.5
-        self.setFixedHeight(740)
-        self.setFixedWidth(900)
+        self.setFixedHeight(660)
+        self.setFixedWidth(880)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
@@ -853,8 +894,10 @@ class Camera(QDialog):
 
         data = {"encodings": knownEncodings, "names": knownNames}
         global running
+
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
         self.label.resize(width, height)
 
         while running:
@@ -929,13 +972,19 @@ class Camera(QDialog):
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
-        testW = 720/width
-        testH = 480/height
-        self.label.resize(testW, testW)
+        if width > height:
+            testW = 680 / width
+            testH = 360 / height
+
+        else:
+            testW = 360 / width
+            testH = 620 / height
+            self.label.setGeometry(260, 20, 360, 620)
+
         print(width, height)
         print(testW, testH)
         global running
-
+        print(dlib.DLIB_USE_CUDA)
         while running:
             ret, image = cap.read()
             if ret:
@@ -1185,7 +1234,7 @@ class Reg_Screen(QMainWindow):
             else:
                 QMessageBox.about(self, "INFO", "사용가능한 아이디 입니다.")
                 self.pushButton.setEnabled(True)
-                self.lineEdit.setDisabled(True)             # 아이디 검사 되면 못바꾸게 잠구기
+                self.lineEdit.setDisabled(True)  # 아이디 검사 되면 못바꾸게 잠구기
 
         else:
             QMessageBox.about(self, "Warning", "아이디를 입력해주세요.")
@@ -1288,7 +1337,7 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
                 pass
 
             collection = self.db[db_user]
-            result = collection.find({"name": db_user},{"_id": False})
+            result = collection.find({"name": db_user}, {"_id": False})
 
             for r in result:
                 knownEncodings.append((r["128d"]))
@@ -1345,7 +1394,7 @@ class DB_Upload(QMainWindow):
 
     def listset(self):
         self.listWidget.clear()
-        load_data(data_path)
+        onlyfiles = load_data(data_path)
         for data in onlyfiles:
             self.listWidget.addItem(data)
 
@@ -1373,7 +1422,7 @@ class DB_Upload(QMainWindow):
         else:
             QMessageBox.about(self, "Error", "업로드할 사용자를 선택하세요")
 
-    def switch(self):   # download 로 바꿔줌
+    def switch(self):  # download 로 바꿔줌
         dbdown = DB_Download(self.level)
         widget.addWidget(dbdown)
         widget.setCurrentIndex(widget.currentIndex() + 1)
@@ -1395,7 +1444,7 @@ class DB_Upload(QMainWindow):
                     QMessageBox.about(self, "CANCEL", "파일" + user + "의 삭제를 취소하였습니다")
             else:
                 QMessageBox.about(self, "Error",
-                                            "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
+                                  "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
         else:
             QMessageBox.about(self, "CANCEL", "삭제할 사용자를 선택해주세요")
 
@@ -1455,11 +1504,9 @@ class Approve(QDialog):
         b = self.collection.find({"approved": True, "admin": False})
         print(a)
         for unapp in a:
-
             self.listWidget.addItem(unapp['name'])
 
         for app in b:
-
             self.listWidget_2.addItem(app['name'])
 
     def app_user(self):  # 승인 안된 회원 리스트에서 선택하여 승인 시켜주는 함수
