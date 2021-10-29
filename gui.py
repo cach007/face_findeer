@@ -141,6 +141,14 @@ class User_Edit(QMainWindow):
         self.pushButton_4.clicked.connect(self.rename)
         self.pushButton.clicked.connect(self.Adduser)
 
+    def name_check(self):
+        onlyfiles = load_data(data_path)
+        for i in onlyfiles:
+            if i == user:
+                print(i)
+                return True
+        return False
+
     def rename(self):
         if self.listWidget.currentItem():
             encodings = []
@@ -150,26 +158,30 @@ class User_Edit(QMainWindow):
             cam = Get_Name()
             cam.exec_()
             print(user)
-            file = 'users/' + select
-            new_file = 'users/' + user
-            print(new_file)
-            os.rename(file, new_file)
-            try:
-                data = pickle.loads(open(new_file, "rb").read())
-            except OSError:
-                print('can\'t found ' + user)
+            ready = self.name_check()
+            if ready:
+                QMessageBox.about(self, 'Warning', '이미 존재하는 이름입니다. 작업을 취소합니다')
+            else:
+                file = 'users/' + select
+                new_file = 'users/' + user
+                print(new_file)
+                os.rename(file, new_file)
+                try:
+                    data = pickle.loads(open(new_file, "rb").read())
+                except OSError:
+                    print('can\'t found ' + user)
 
-            for i in data["encodings"]:
-                encodings.append(i)
-                change.append(user)
+                for i in data["encodings"]:
+                    encodings.append(i)
+                    change.append(user)
 
-            change_file = {"encodings": encodings, "names": change}
+                change_file = {"encodings": encodings, "names": change}
 
-            files = open(new_file, 'wb')
-            files.write(pickle.dumps(change_file))
-            files.close()
+                files = open(new_file, 'wb')
+                files.write(pickle.dumps(change_file))
+                files.close()
 
-            self.Uplist()
+                self.Uplist()
         else:
             QMessageBox.about(self, "Error", "이름을 변경할 사용자를 선택하세요.")
 
@@ -279,6 +291,8 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
             QMessageBox.about(self, 'Warning', '이미 해당 이름의 파일이 존재합니다.')
 
         elif user != 'none':
+            img_name = user
+            user = 'none'
             self.dest_folder()
             if select_folder != '/':
                 knownEncodings = []
@@ -308,11 +322,10 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
 
                 data = {"encodings": knownEncodings, "names": knownNames}
                 createFolder('./users')
-                f = open(data_path + user, 'wb')
+                f = open(data_path + img_name, 'wb')
                 print(data)
                 f.write(pickle.dumps(data))
                 f.close()
-                user = 'none'
                 QMessageBox.about(self, "INFO", "사용자 등록 완료.")
         else:
             QMessageBox.about(self, "Warning", "사용자 등록을 취소합니다.")
@@ -1309,6 +1322,14 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
         self.listset()
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
 
+    def name_check(self, name):
+        onlyfiles = load_data(data_path)
+        for i in onlyfiles:
+            if i == name:
+                print(i)
+                return True
+        return False
+
     def listset(self):
         self.listWidget.clear()
         a = self.db.list_collection_names()
@@ -1333,24 +1354,27 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
             knownEncodings = []
             knownNames = []
 
-            if db_user in listdir(data_path):
-                pass
+            ready = self.name_check(db_user)
+            if ready:
+                QMessageBox.about(self, 'Warning', '해당 이름의 파일이 이미 존재합니다 작업을 취소합니다.')
 
-            collection = self.db[db_user]
-            result = collection.find({"name": db_user}, {"_id": False})
+            else:
 
-            for r in result:
-                knownEncodings.append((r["128d"]))
-                knownNames.append(db_user)
+                collection = self.db[db_user]
+                result = collection.find({"name": db_user}, {"_id": False})
 
-            data = {"encodings": knownEncodings, "names": knownNames}
-            createFolder(data_path)
-            f = open(data_path + db_user, 'wb')
-            print(data)
-            f.write(pickle.dumps(data))
-            f.close()
-            print(db_user + 'download 완료')
-            QMessageBox.about(self, "Success", db_user + " 다운로드 완료.")
+                for r in result:
+                    knownEncodings.append((r["128d"]))
+                    knownNames.append(db_user)
+
+                data = {"encodings": knownEncodings, "names": knownNames}
+                createFolder(data_path)
+                f = open(data_path + db_user, 'wb')
+                print(data)
+                f.write(pickle.dumps(data))
+                f.close()
+                print(db_user + 'download 완료')
+                QMessageBox.about(self, "Success", db_user + " 다운로드 완료.")
 
         else:
             QMessageBox.about(self, "Error", "다운로드할 사용자를 선택하세요")
