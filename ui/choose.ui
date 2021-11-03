@@ -42,10 +42,10 @@ color:rgb(255, 255, 255);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -66,7 +66,7 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>W e b   C a m</string>
+     <string>Web Cam</string>
     </property>
     <property name="icon">
      <iconset resource="../img/img.qrc">
@@ -88,10 +88,16 @@ background-color:rgba(2,65,118, 255);
       <height>23</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Arial Rounded MT Bold</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">QPushButton#pushButton_5{
 background-color:rgb(255, 170, 0);
-color:rgba(255, 255, 255, 200);
+	color: rgb(0, 0, 0);
 border-radius:5px;
 }
 QPushButton#pushButton_5:pressed{
@@ -119,10 +125,10 @@ background-color:rgb(255, 170, 0);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -144,7 +150,7 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>V i d e o</string>
+     <string>Video</string>
     </property>
     <property name="icon">
      <iconset resource="../img/img.qrc">
@@ -168,10 +174,10 @@ background-color:rgba(2,65,118, 255);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -192,7 +198,7 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>I m a g e</string>
+     <string>Image</string>
     </property>
     <property name="icon">
      <iconset>

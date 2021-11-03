@@ -2,6 +2,7 @@ import os
 import pickle
 import sys
 import time
+from time import sleep
 import dlib
 import cv2
 import face_recognition
@@ -24,7 +25,7 @@ import img
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
 Login = False
 Admin = False
-DB = pickle.loads(open("../pyqt_final/DBkey", "rb").read())  # 데이터베이스 비밀번호를 담고 있는 피클 파일을 연다
+DB = pickle.loads(open("DBkey", "rb").read())  # 데이터베이스 비밀번호를 담고 있는 피클 파일을 연다
 client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'
@@ -98,6 +99,22 @@ class Home_Screen(QMainWindow):
         widget.addWidget(local)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Local_Menu(QMainWindow):
     def __init__(self):
@@ -126,6 +143,22 @@ class Local_Menu(QMainWindow):
         widget.addWidget(edit)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class User_Edit(QMainWindow):
     def __init__(self):
@@ -151,6 +184,7 @@ class User_Edit(QMainWindow):
 
     def rename(self):
         if self.listWidget.currentItem():
+
             encodings = []
             change = []
             select = self.listWidget.currentItem().text()
@@ -184,6 +218,7 @@ class User_Edit(QMainWindow):
                 self.Uplist()
         else:
             QMessageBox.about(self, "Error", "이름을 변경할 사용자를 선택하세요.")
+
 
     def gotolocal(self):
         local = Local_Menu()
@@ -227,6 +262,22 @@ class User_Edit(QMainWindow):
 
             QMessageBox.about(self, "Error", "삭제할 사용자를 선택하세요.")
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
     def __init__(self):
@@ -261,8 +312,8 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
 
         elif user != 'none':
             addcam = Add_Cam(user)
-            user = 'none'
             addcam.exec_()
+            user = 'none'
         else:
             QMessageBox.about(self, "Warning", "사용자 등록을 취소합니다.")
 
@@ -330,6 +381,22 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
         else:
             QMessageBox.about(self, "Warning", "사용자 등록을 취소합니다.")
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Get_Name(QDialog):
     def __init__(self):
@@ -338,7 +405,6 @@ class Get_Name(QDialog):
         self.setFixedHeight(300)
         self.setFixedHeight(200)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.pushButton_2.clicked.connect(self.close)
         self.pushButton.clicked.connect(self.getback)
 
@@ -347,6 +413,17 @@ class Get_Name(QDialog):
         user = self.lineEdit.text()
         print(user)
         self.close()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            self.move(self.pos() + event.pos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        self.offset = None
 
 
 class Add_Cam(QDialog):
@@ -360,6 +437,17 @@ class Add_Cam(QDialog):
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
         self.start()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            self.move(self.pos() + event.pos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        self.offset = None
 
     def run(self):
         knownEncodings = []
@@ -489,6 +577,22 @@ class Choose_One(QMainWindow):
             cam.videostart()
             cam.exec()
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Choose_All(QMainWindow):
     def __init__(self, level):
@@ -542,6 +646,22 @@ class Choose_All(QMainWindow):
             cam.videostart()
             cam.exec()
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Detect(QMainWindow):
     def __init__(self, level):
@@ -593,6 +713,22 @@ class Detect(QMainWindow):
         else:
             QMessageBox.about(self, "Error", "탐색할 사용자를 선택하세요.")
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class FindAll(QDialog):  # 사용자 전체
     def __init__(self, url):
@@ -605,6 +741,17 @@ class FindAll(QDialog):  # 사용자 전체
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            self.move(self.pos() + event.pos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        self.offset = None
 
     def webcam(self):
         self.run_all()
@@ -879,6 +1026,17 @@ class Camera(QDialog):
 
     def __del__(self):
         self.stop()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            self.move(self.pos() + event.pos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        self.offset = None
 
     def webcam(self):
         cap = cv2.VideoCapture(0)
@@ -1219,6 +1377,22 @@ class Login_Screen(QMainWindow):
         else:
             QMessageBox.about(self, "Error", "Id와 PassWord를 입력해주세요.")
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Reg_Screen(QMainWindow):
     def __init__(self):
@@ -1279,6 +1453,22 @@ class Reg_Screen(QMainWindow):
         else:
             QMessageBox.about(self, "Error", "Id와 PassWord를 입력해주세요.")
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Member_Page(QMainWindow):
     def __init__(self):
@@ -1302,6 +1492,22 @@ class Member_Page(QMainWindow):
         detect = Detect('member')
         widget.addWidget(detect)
         widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
 
 
 class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
@@ -1397,6 +1603,22 @@ class DB_Download(QMainWindow):  # 로그인후 db 접근 페이지
         else:
             QMessageBox.about(self, "Error", "삭제할 사용자를 선택하세요")
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class DB_Upload(QMainWindow):
     def __init__(self, level):
@@ -1416,6 +1638,14 @@ class DB_Upload(QMainWindow):
         self.listset()
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
 
+    def name_check(self, files, name):
+        print(files)
+        for i in files:
+            if i == name:
+                print(i)
+                return True
+        return False
+
     def listset(self):
         self.listWidget.clear()
         onlyfiles = load_data(data_path)
@@ -1433,16 +1663,26 @@ class DB_Upload(QMainWindow):
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def upload(self):
+        files = self.db.list_collection_names()
         if self.listWidget.currentItem():
             user = self.listWidget.currentItem().text()
             print(user)
-            data = pickle.loads(open('users/' + user, "rb").read())
-            collection = self.db[user]
-            for encoding in data["encodings"]:
-                collection.insert_one({"128d": list(encoding), "name": user})
 
-            print("upload완료")
-            QMessageBox.about(self, "Success", user + " 업로드 완료")
+            load = self.name_check(files, user)
+            print(load)
+
+            if load:
+
+                QMessageBox.about(self, 'Warning', '해당파일이 이미 DB에 존재합니다. 작업을 취소합니다')
+            else:
+
+                data = pickle.loads(open('users/' + user, "rb").read())
+                collection = self.db[user]
+                for encoding in data["encodings"]:
+                    collection.insert_one({"128d": list(encoding), "name": user})
+
+                print("upload완료")
+                QMessageBox.about(self, "Success", user + " 업로드 완료")
         else:
             QMessageBox.about(self, "Error", "업로드할 사용자를 선택하세요")
 
@@ -1455,7 +1695,6 @@ class DB_Upload(QMainWindow):
         if self.listWidget.currentItem():
             user = self.listWidget.currentItem().text()
             file = 'users/' + user
-
             if os.path.isfile(file):  # 선택한 파일이 존재할경우에
                 response = QMessageBox.question(self, 'Message', 'Are you sure to delete?',
                                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -1471,6 +1710,22 @@ class DB_Upload(QMainWindow):
                                   "삭제할 파일이 존재하지 않습니다다")  # 파일이 존재하지 않을 경우에 메세지박스로 알려준다(정상적인 상황에서 발생할수 없는 오류)
         else:
             QMessageBox.about(self, "CANCEL", "삭제할 사용자를 선택해주세요")
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
 
 
 class Admin_Page(QMainWindow):
@@ -1501,6 +1756,22 @@ class Admin_Page(QMainWindow):
         apr = Approve()
         apr.exec_()
 
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            self.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
+
 
 class Approve(QDialog):
     def __init__(self):
@@ -1513,12 +1784,24 @@ class Approve(QDialog):
         self.label.setText('승인대기')
         self.label_2.setText('승인완료')
         self.listset()
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.label.setAlignment(Qt.AlignCenter)
         self.label_2.setAlignment(Qt.AlignCenter)
-
+        self.pushButton_3.clicked.connect(self.close)
         self.pushButton.clicked.connect(self.app_user)
 
         self.pushButton_2.clicked.connect(self.un_user)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            self.move(self.pos() + event.pos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        self.offset = None
 
     def listset(self):
         self.listWidget.clear()
@@ -1556,10 +1839,14 @@ class Approve(QDialog):
             print("2222")
 
 
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     home = Home_Screen()
     widget = QtWidgets.QStackedWidget()
     widget.addWidget(home)
+    widget.setWindowFlags(Qt.FramelessWindowHint)
     widget.show()
     app.exec_()
+
+

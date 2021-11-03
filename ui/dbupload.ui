@@ -42,10 +42,10 @@ color:rgb(255, 255, 255);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -66,7 +66,7 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>U p l o a d</string>
+     <string>Upload</string>
     </property>
     <property name="icon">
      <iconset resource="../img/img.qrc">
@@ -91,7 +91,7 @@ background-color:rgba(2,65,118, 255);
     <property name="font">
      <font>
       <family>Arial Rounded MT Bold</family>
-      <pointsize>8</pointsize>
+      <pointsize>9</pointsize>
       <weight>50</weight>
       <bold>false</bold>
      </font>
@@ -99,7 +99,7 @@ background-color:rgba(2,65,118, 255);
     <property name="styleSheet">
      <string notr="true">QPushButton#pushButton_2{
 background-color:rgb(255, 170, 0);
-color:rgba(255, 255, 255, 200);
+	color: rgb(0, 0, 0);
 border-radius:5px;
 }
 QPushButton#pushButton_2:pressed{
@@ -125,10 +125,16 @@ background-color:rgb(255, 170, 0);
       <height>23</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Arial Rounded MT Bold</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true">QPushButton#pushButton_3{
 background-color:rgb(255, 170, 0);
-color:rgba(255, 255, 255, 200);
+	color: rgb(0, 0, 0);
 border-radius:5px;
 }
 QPushButton#pushButton_3:pressed{
@@ -186,10 +192,10 @@ background-color:rgb(255, 170, 0);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -210,7 +216,7 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>D e l e t e</string>
+     <string>Delete</string>
     </property>
     <property name="icon">
      <iconset resource="../img/img.qrc">
@@ -234,10 +240,10 @@ background-color:rgba(2,65,118, 255);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -258,7 +264,7 @@ background-color:rgba(2,65,118, 255);
 </string>
     </property>
     <property name="text">
-     <string>S w i t c h</string>
+     <string>Switch</string>
     </property>
     <property name="icon">
      <iconset resource="../img/img.qrc">

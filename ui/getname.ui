@@ -66,16 +66,16 @@ color:rgb(255, 255, 255);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton#pushButton{
 background-color:rgb(255, 170, 0);
-color:rgba(255, 255, 255, 200);
+	color: rgb(0, 0, 0);
 border-radius:5px;
 }
 QPushButton#pushButton:pressed{
@@ -103,16 +103,16 @@ background-color:rgb(255, 170, 0);
     </property>
     <property name="font">
      <font>
-      <family>Agency FB</family>
+      <family>Arial Rounded MT Bold</family>
       <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton#pushButton_2{
 background-color:rgb(255, 170, 0);
-color:rgba(255, 255, 255, 200);
+	color: rgb(0, 0, 0);
 border-radius:5px;
 }
 QPushButton#pushButton_2:pressed{
