@@ -5,6 +5,8 @@ anaconda 프로프트를 실행한다음
 conda env create -f env.yml 
 입력하면 yml에서 파일안에 name으로 가상환경 생성되어서 프로그램 바로 실행가능
 
+
+
 그래픽 카드로 프로그램을 실행하려면 중간때와같이 
 가상환경 activate 시킨후에
 

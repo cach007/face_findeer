@@ -13,10 +13,10 @@ from PyQt5 import uic, QtCore, QtGui, QtWidgets
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, QDialog, QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, \
     QStatusBar, QToolBar, QAction, QComboBox, QFileDialog, QListWidget, QTextEdit, QInputDialog
-from PyQt5.QtCore import QCoreApplication, pyqtSignal, pyqtSlot, Qt, QThread, QTimer
+from PyQt5.QtCore import QCoreApplication, pyqtSignal, pyqtSlot, Qt, QThread, QTimer, QByteArray
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap, QImage, QMovie
 import pymongo
 import bcrypt
 import numpy as np
@@ -139,7 +139,7 @@ class Local_Menu(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def gotoedit(self):
-        edit = User_Edit()
+        edit = User_Edit('guest')
         widget.addWidget(edit)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -161,18 +161,33 @@ class Local_Menu(QMainWindow):
 
 
 class User_Edit(QMainWindow):
-    def __init__(self):
+    def __init__(self, level):
         super().__init__()
         loadUi("ui/useredit.ui", self)
+        self.level = level
         self.setFixedHeight(600)
         self.setFixedWidth(400)
         self.Uplist()
         self.label.setAlignment(Qt.AlignCenter)
-        self.backButton.clicked.connect(self.gotolocal)
+        self.backButton.clicked.connect(self.back)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
         self.pushButton_2.clicked.connect(self.Deleteuser)
         self.pushButton_4.clicked.connect(self.rename)
         self.pushButton.clicked.connect(self.Adduser)
+
+    def back(self):
+        if self.level == 'admin':
+            admin = Admin_Page()
+            widget.addWidget(admin)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        elif self.level == 'member':
+            member = Member_Page()
+            widget.addWidget(member)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        else:
+            back = Local_Menu()
+            widget.addWidget(back)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def name_check(self):
         onlyfiles = load_data(data_path)
@@ -219,12 +234,6 @@ class User_Edit(QMainWindow):
         else:
             QMessageBox.about(self, "Error", "이름을 변경할 사용자를 선택하세요.")
 
-
-    def gotolocal(self):
-        local = Local_Menu()
-        widget.addWidget(local)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-
     def Uplist(self):  # 리스트에 사용자를 추가하거나 삭제할시 리스트를 갱신해주는 함수
         self.listWidget.clear()
         onlyfiles = load_data(data_path)
@@ -232,7 +241,7 @@ class User_Edit(QMainWindow):
             self.listWidget.addItem(data)
 
     def Adduser(self):
-        add = Add_User()
+        add = Add_User(self.level)
         widget.addWidget(add)
         widget.setCurrentIndex(widget.currentIndex() + 1)
         self.Uplist()
@@ -246,8 +255,8 @@ class User_Edit(QMainWindow):
             file = 'users/' + select
 
             if os.path.isfile(file):  # 선택한 파일이 존재할경우에
-                response = QMessageBox.question(self, 'Message', 'Are you sure to delete',
-                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                response = QMessageBox.question(self, 'Message', '정말 삭제 하시겠습니까?',
+                                                QMessageBox.Yes | QMessageBox.No)
                 print(response)
                 if response == QMessageBox.Yes:
                     os.remove(file)  # 파일을 삭제한다
@@ -280,13 +289,14 @@ class User_Edit(QMainWindow):
 
 
 class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
-    def __init__(self):
+    def __init__(self, level):
         super().__init__()
         loadUi("ui/adduser.ui", self)
+        self.level = level
         self.setFixedHeight(600)
         self.setFixedWidth(400)
         self.detectButton.clicked.connect(self.getname)
-        self.backButton.clicked.connect(self.gotoedit)
+        self.backButton.clicked.connect(self.goback)
         self.pushButton_4.clicked.connect(self.runimage)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
 
@@ -317,10 +327,19 @@ class Add_User(QMainWindow):  # 사용자 추가 방식 고르는 페이지
         else:
             QMessageBox.about(self, "Warning", "사용자 등록을 취소합니다.")
 
-    def gotoedit(self):  # 이전페이지로 돌아가는 함수
-        edit = User_Edit()
-        widget.addWidget(edit)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
+    def goback(self):
+        if self.level == 'admin':
+            admin = User_Edit('admin')
+            widget.addWidget(admin)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        elif self.level == 'member':
+            member = User_Edit('member')
+            widget.addWidget(member)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        else:
+            back = User_Edit('guest')
+            widget.addWidget(back)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def dest_folder(self):  # 찾아보기 버튼  파일경로읽어오기
         files = QtWidgets.QFileDialog.getExistingDirectory(self, 'select image directory')
@@ -478,7 +497,6 @@ class Add_Cam(QDialog):
                     pass
 
                 for ((top, right, bottom, left), name) in zip(boxes, knownNames):
-                    # rescale the face coordinates
 
                     color = (255, 255, 0)
                     cv2.rectangle(img, (left, top), (right, bottom), color, 2)
@@ -1482,6 +1500,12 @@ class Member_Page(QMainWindow):
         self.pushButton_2.clicked.connect(logoutstate)  # 로그아웃 버튼
         self.pushButton_4.clicked.connect(self.gotodb)  # 데이터 베이스 접근 버튼 -> 업로드 다운로드
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
+        self.pushButton_6.clicked.connect(self.gotouser)
+
+    def gotouser(self):
+        useredit = User_Edit('member')
+        widget.addWidget(useredit)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def gotodb(self):
         db = DB_Download('member')
@@ -1741,6 +1765,12 @@ class Admin_Page(QMainWindow):
         self.pushButton_4.clicked.connect(self.gotodb)  # 데이터 베이스 접근 버튼 -> 업로드 다운로드
         self.pushButton_5.clicked.connect(self.gotoapp)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
+        self.pushButton_6.clicked.connect(self.gotouser)
+
+    def gotouser(self):
+        useredit = User_Edit('admin')
+        widget.addWidget(useredit)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def gotodb(self):
         db = DB_Download('admin')
@@ -1777,7 +1807,7 @@ class Approve(QDialog):
     def __init__(self):
         super().__init__()
         loadUi("ui/regcheck.ui", self)
-        self.setFixedHeight(300)
+        self.setFixedHeight(330)
         self.setFixedWidth(600)
         self.db = client["member"]
         self.collection = self.db["member"]
@@ -1825,7 +1855,7 @@ class Approve(QDialog):
             self.collection.update({"name": selected_user}, {"$set": {"approved": True}})
             self.listset()
         else:
-            print("check")
+            print("non")
 
     def un_user(self):
         if self.listWidget_2.currentItem():
@@ -1836,8 +1866,7 @@ class Approve(QDialog):
             self.collection.update({"name": selected_user}, {"$set": {"approved": False}})
             self.listset()
         else:
-            print("2222")
-
+            print("non")
 
 
 if __name__ == '__main__':

@@ -201,8 +201,8 @@ background-color:rgba(2,65,118, 255);
      <string>Image</string>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../img/image.png</normaloff>../img/image.png</iconset>
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/image.png</normaloff>:/newPrefix/image.png</iconset>
     </property>
     <property name="iconSize">
      <size>
