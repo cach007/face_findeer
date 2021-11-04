@@ -79,7 +79,7 @@ def logoutstate():
     gotohome()
 
 
-class Home_Screen(QMainWindow):
+class Home_Screen(QDialog):
     def __init__(self):
         super().__init__()
         loadUi("ui/home.ui", self)
@@ -868,18 +868,24 @@ class FindAll(QDialog):  # 사용자 전체
 
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        ratio = height / width
 
         if width > height:
-            testW = 680 / width
-            testH = 360 / height
-
+            testW = 660
+            testH = testW * ratio
+            testR = testW / width
+            spaceH = abs((660 - testH) / 2)
+            spaceW = abs((880 - testW) / 2)
         else:
-            testW = 360 / width
-            testH = 620 / height
-            self.label.setGeometry(260, 20, 360, 620)
-        self.label.resize(testW, testW)
-        print(width, height)
-        print(testW, testH)
+            testH = 660
+            testW = testH / ratio
+            testR = testH / height
+            spaceH = abs((660 - testH) / 2)
+            spaceW = abs((880 - testW) / 2)
+
+        print(int(spaceW), int(spaceH), int(testW), int(testH))
+        self.label.resize(int(testW), int(testH))
+        self.label.setGeometry(int(spaceW), int(spaceH), int(testW), int(testH))
 
         global running
 
@@ -888,7 +894,7 @@ class FindAll(QDialog):  # 사용자 전체
             if ret:
 
                 img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                img = cv2.resize(img, (int(img.shape[1] * testW), int(img.shape[0] * testH)))
+                img = cv2.resize(img, (int(img.shape[1] * testR), int(img.shape[0] * testR)))
 
                 boxes = face_recognition.face_locations(img, model='CNN')
                 encodings = face_recognition.face_encodings(img, boxes)
@@ -954,9 +960,55 @@ class FindAll(QDialog):  # 사용자 전체
 
         data = {"encodings": knownEncodings, "names": knownNames}
 
-        img = cv2.resize(img, (int(img.shape[1] * self.scaler), int(img.shape[0] * self.scaler)))
+        height = img.shape[0]
+        width = img.shape[1]
+        ratio = height / width
+
+        print(width, height)
+
+        if width <= 500 and height <= 500:
+            width = width * 2
+            height = height * 2
+
+        if width < height:
+            if height <= 660:
+                testH = height
+                testW = width
+                testR = testH / img.shape[0]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('1')
+
+            else:
+                testH = 660
+                testW = testH / ratio
+                testR = testH / img.shape[0]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('2')
+
+        elif height <= width:
+            if width == height <= 660:
+                testW = width
+                testH = height
+                testR = testH / img.shape[0]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('3')
+            else:
+                testW = 660
+                testH = testW * ratio
+                testR = testW / img.shape[1]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('4')
+
+        print(int(spaceW), int(spaceH), int(testW), int(testH))
+        self.label.setGeometry(int(spaceW), int(spaceH), int(testW), int(testH))
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, (int(img.shape[1] * testR), int(img.shape[0] * testR)))
+
         boxes = face_recognition.face_locations(img, model='CNN')
         encodings = face_recognition.face_encodings(img, boxes)
         names = []
@@ -1160,18 +1212,25 @@ class Camera(QDialog):
 
         width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        ratio = height / width
 
         if width > height:
-            testW = 680 / width
-            testH = 360 / height
-
+            testW = 660
+            testH = testW * ratio
+            testR = testW / width
+            spaceH = abs((660 - testH) / 2)
+            spaceW = abs((880 - testW) / 2)
         else:
-            testW = 360 / width
-            testH = 620 / height
-            self.label.setGeometry(260, 20, 360, 620)
+            testH = 660
+            testW = testH / ratio
+            testR = testH / height
+            spaceH = abs((660 - testH) / 2)
+            spaceW = abs((880 - testW) / 2)
 
-        print(width, height)
-        print(testW, testH)
+        print(int(spaceW), int(spaceH), int(testW), int(testH))
+        self.label.resize(int(testW), int(testH))
+        self.label.setGeometry(int(spaceW), int(spaceH), int(testW), int(testH))
+
         global running
         print(dlib.DLIB_USE_CUDA)
         while running:
@@ -1179,7 +1238,7 @@ class Camera(QDialog):
             if ret:
 
                 img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                img = cv2.resize(img, (int(img.shape[1] * testW), int(img.shape[0] * testH)))
+                img = cv2.resize(img, (int(img.shape[1] * testR), int(img.shape[0] * testR)))
 
                 boxes = face_recognition.face_locations(img, model='CNN')
                 encodings = face_recognition.face_encodings(img, boxes)
@@ -1234,7 +1293,7 @@ class Camera(QDialog):
     def img_run(self, img):
         knownEncodings = []
         knownNames = []
-
+        # 사용자 파일 불러오기
         try:
             data = pickle.loads(open('users/' + self.user, "rb").read())
         except OSError:
@@ -1246,9 +1305,53 @@ class Camera(QDialog):
 
         data = {"encodings": knownEncodings, "names": knownNames}
 
-        img = cv2.resize(img, (int(img.shape[1] * self.scaler), int(img.shape[0] * self.scaler)))
+        height = img.shape[0]
+        width = img.shape[1]
+        ratio = height / width
+
+        print(width, height)
+        if width <= 500 and height <= 500:
+            width = width * 2
+            height = height * 2
+
+        if width < height:
+            if height <= 660:
+                testH = height
+                testW = width
+                testR = testH / img.shape[0]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('1')
+
+            else:
+                testH = 660
+                testW = testH / ratio
+                testR = testH / img.shape[0]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('2')
+
+        elif height <= width:
+            if width == height <= 660:
+                testW = width
+                testH = height
+                testR = testH / img.shape[0]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('3')
+            else:
+                testW = 660
+                testH = testW * ratio
+                testR = testW / img.shape[1]
+                spaceH = abs((660 - testH) / 2)
+                spaceW = abs((880 - testW) / 2)
+                print('4')
+
+        print(int(spaceW), int(spaceH), int(testW), int(testH))
+        self.label.setGeometry(int(spaceW), int(spaceH), int(testW), int(testH))
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.resize(img, (int(img.shape[1] * testR), int(img.shape[0] * testR)))
         boxes = face_recognition.face_locations(img, model='CNN')
         encodings = face_recognition.face_encodings(img, boxes)
         names = []
@@ -1275,12 +1378,10 @@ class Camera(QDialog):
             names.append(name)
 
         for ((top, right, bottom, left), name) in zip(boxes, names):
-            # rescale the face coordinates
 
             color = (255, 255, 0)
             if name == 'unknown':
                 color = (255, 255, 255)
-                # draw the predicted face name on the image
             cv2.rectangle(img, (left, top), (right, bottom),
                           color, 2)
             y = top - 15 if top - 15 > 15 else top + 15
@@ -1877,5 +1978,3 @@ if __name__ == '__main__':
     widget.setWindowFlags(Qt.FramelessWindowHint)
     widget.show()
     app.exec_()
-
-

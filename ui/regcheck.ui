@@ -10,6 +10,11 @@
     <height>330</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Arial Rounded MT Bold</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>

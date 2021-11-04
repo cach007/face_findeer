@@ -12,8 +12,8 @@
   </property>
   <property name="font">
    <font>
-    <family>Agency FB</family>
-    <pointsize>10</pointsize>
+    <family>Arial Rounded MT Bold</family>
+    <pointsize>9</pointsize>
    </font>
   </property>
   <property name="windowTitle">
@@ -36,6 +36,11 @@ QPushButton{
      <width>400</width>
      <height>600</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial Rounded MT Bold</family>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:rgba(16,30,41,240);

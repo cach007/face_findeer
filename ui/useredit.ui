@@ -10,6 +10,11 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Arial Rounded MT Bold</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -190,6 +195,11 @@ background-color:rgba(2,65,118, 255);
       <width>400</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial Rounded MT Bold</family>
+     </font>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>

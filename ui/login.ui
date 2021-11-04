@@ -10,6 +10,11 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Arial Rounded MT Bold</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -26,6 +31,11 @@ color:rgb(255, 255, 255);
      <width>400</width>
      <height>600</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial Rounded MT Bold</family>
+    </font>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color:rgba(16,30,41,240);
