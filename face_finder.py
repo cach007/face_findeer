@@ -16,9 +16,11 @@ from PyQt5.QtGui import QPixmap, QImage, QMovie
 import pymongo
 import bcrypt
 import numpy as np
+from matplotlib.figure import Figure
 import img
-from matplotlib import pyplot as plt
-
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import matplotlibwidgetFile
 
 print(dlib.DLIB_USE_CUDA)
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
@@ -28,7 +30,8 @@ DB = pickle.loads(open("DBkey", "rb").read())  # 데이터베이스 비밀번호
 client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'
-
+labels = []
+pieRatio = []
 
 def load_data(path):  # 리스트 파일 로드 함수
     # 폴더가 있을때 파일이 없는경우 onlyfiles 폴더를 만들지 못함
@@ -939,6 +942,9 @@ class FindAll(QDialog):  # 사용자 전체
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
 
+    def __del__(self):
+        self.gotopie()
+
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.offset = event.pos()
@@ -1146,18 +1152,16 @@ class FindAll(QDialog):  # 사용자 전체
             except:
                 checkRatio[i] = 1
 
-        print(checkRatio)
-        labels = []
-        ratio = []
+        global labels
+        global pieRatio
 
         for key, val in checkRatio.items():
             labels.append(key)
-            ratio.append(val)
+            pieRatio.append(val)
 
-        self.gotopie(ratio, labels)
-
-    def gotopie(self, ratio, labels):
-        pie = PieChart(ratio, labels)
+    def gotopie(self):
+        pie = PieChart()
+        pie.videostart()
         pie.exec_()
 
     def img_all(self, img):
@@ -1645,35 +1649,42 @@ class Camera(QDialog):
         print("started..")
 
 
-class PieChart(QDialog):  # 사용자 전체
-    def __init__(self, ratio, labels):
+class PieChart(QDialog):
+    def __init__(self):
         super().__init__()
-        loadUi("ui/local.ui", self)
-        self.ratio = ratio
+        loadUi("ui/chart.ui", self)
+        self.fig = plt.Figure()
+        self.canvas = FigureCanvas(self.fig)
+
+        self.ratio = pieRatio
         self.labels = labels
-        self.setFixedWidth(880)
-        self.setFixedHeight(660)
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
 
-    def show(self):
-        plt.pie(self.ratio, labels=self.labels, autopct='%.1f%%')
-        plt.show()
+    def __del__(self):
+        global pieRatio
+        global labels
+        pieRatio = []
+        labels = []
+        self.stop()
+
+    def chart(self):
+        ax = self.fig.add_subplot()
+        ax.pie(self.ratio, labels=self.labels, autopct='%.1f%%')
+        ax.grid()
+        self.canvas.draw()
+
+    def videostart(self):
+        global running
+        running = True
+        th = threading.Thread(target=self.chart)
+        th.start()
+        print("started..")
 
     def stop(self):
         global running
         running = False
         print("stoped..")
         self.close()
-
-    def start(self):
-        global running
-        running = True
-        th = threading.Thread(target=self.show)
-        th.start()
-        print("start")
-
 
 
 class Login_Screen(QMainWindow):
