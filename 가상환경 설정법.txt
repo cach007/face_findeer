@@ -1,6 +1,6 @@
 가상환경 설정법
 
-yml 파일을 열고 제일 처음name이랑 마지막 prefix의 경로를 정해준후 
+env.yml 파일을 열고 제일 처음name이랑 마지막 prefix의 경로를 정해준후 
 anaconda 프로프트를 실행한다음  
 conda env create -f env.yml 
 입력하면 yml에서 파일안에 name으로 가상환경 생성되어서 프로그램 바로 실행가능
@@ -38,5 +38,5 @@ cmake --build .
 cd ..
 python setup.py install
 
-다음순서대로 dlib를 설치 하면 gpu를 이용하여 연산 가능
+다음순서대로 dlib를 설치 하면 gpu가속 이용가능
 
