@@ -1655,6 +1655,7 @@ class PieChart(QDialog):
         loadUi("ui/chart.ui", self)
         self.fig = plt.Figure()
         self.canvas = FigureCanvas(self.fig)
+        self.verticalLayout_2.addWidget(self.canvas)
 
         self.ratio = pieRatio
         self.labels = labels
