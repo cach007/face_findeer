@@ -17,6 +17,8 @@ import pymongo
 import bcrypt
 import numpy as np
 import img
+from matplotlib import pyplot as plt
+
 
 print(dlib.DLIB_USE_CUDA)
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
@@ -1011,6 +1013,7 @@ class FindAll(QDialog):  # 사용자 전체
                             counts[data['names'][items]] = counts.get(data['names'][items]) + 1
                         name = max(counts, key=counts.get)
                         print(counts)
+                        print(data['names'][items])
                     names.append(name)
 
                 for ((top, right, bottom, left), name) in zip(boxes, names):
@@ -1041,6 +1044,7 @@ class FindAll(QDialog):  # 사용자 전체
     def video_all(self, cap):
         knownEncodings = []
         knownNames = []
+        AllP = []
 
         onlyfiles = load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
         for i in onlyfiles:  # 리스트에 존재하는 파일 순서대로 입력
@@ -1106,6 +1110,7 @@ class FindAll(QDialog):  # 사용자 전체
                         print(counts)
 
                     names.append(name)
+                    AllP.extend(names)
 
                 for ((top, right, bottom, left), name) in zip(boxes, names):
 
@@ -1132,7 +1137,28 @@ class FindAll(QDialog):  # 사용자 전체
                 break
 
         cap.release()
-        print("Thread end.")
+        print(AllP)
+        checkRatio = {}
+
+        for i in AllP:
+            try:
+                checkRatio[i] += 1
+            except:
+                checkRatio[i] = 1
+
+        print(checkRatio)
+        labels = []
+        ratio = []
+
+        for key, val in checkRatio.items():
+            labels.append(key)
+            ratio.append(val)
+
+        self.gotopie(ratio, labels)
+
+    def gotopie(self, ratio, labels):
+        pie = PieChart(ratio, labels)
+        pie.exec_()
 
     def img_all(self, img):
         knownEncodings = []
@@ -1348,6 +1374,7 @@ class Camera(QDialog):
 
                     if True in matches:
                         matchesIndxs = []
+                        graphP = []
                         for (i, b) in enumerate(matches):
                             if b:
                                 matchesIndxs.append(i)
@@ -1362,15 +1389,17 @@ class Camera(QDialog):
                             counts[data['names'][items]] = counts.get(data['names'][items]) + 1
                         name = max(counts, key=counts.get)
                         print(counts)
+                        print(data['names'][items])
+                        graphP.append(data['names'][items])
+
                     names.append(name)
 
                 for ((top, right, bottom, left), name) in zip(boxes, names):
-                    # rescale the face coordinates
 
                     color = (255, 255, 0)
                     if name == 'unknown':
                         color = (255, 255, 255)
-                        # draw the predicted face name on the image
+
                     cv2.rectangle(img, (left, top), (right, bottom),
                                   color, 2)
                     y = top - 15 if top - 15 > 15 else top + 15
@@ -1614,6 +1643,37 @@ class Camera(QDialog):
         th = threading.Thread(target=self.video)
         th.start()
         print("started..")
+
+
+class PieChart(QDialog):  # 사용자 전체
+    def __init__(self, ratio, labels):
+        super().__init__()
+        loadUi("ui/local.ui", self)
+        self.ratio = ratio
+        self.labels = labels
+        self.setFixedWidth(880)
+        self.setFixedHeight(660)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.backButton.clicked.connect(self.stop)
+
+    def show(self):
+        plt.pie(self.ratio, labels=self.labels, autopct='%.1f%%')
+        plt.show()
+
+    def stop(self):
+        global running
+        running = False
+        print("stoped..")
+        self.close()
+
+    def start(self):
+        global running
+        running = True
+        th = threading.Thread(target=self.show)
+        th.start()
+        print("start")
+
 
 
 class Login_Screen(QMainWindow):
