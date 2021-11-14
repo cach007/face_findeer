@@ -970,6 +970,7 @@ class FindAll(QDialog):  # 사용자 전체
     def run_all(self):
         knownEncodings = []
         knownNames = []
+        AllP = []
 
         onlyfiles = load_data(data_path)  # 리스트에 들어가 파일이 있는 폴더를 스캔해준다
         for i in onlyfiles:  # 리스트에 존재하는 파일 순서대로 입력
@@ -1021,6 +1022,7 @@ class FindAll(QDialog):  # 사용자 전체
                         print(counts)
                         print(data['names'][items])
                     names.append(name)
+                    AllP.extend(names)
 
                 for ((top, right, bottom, left), name) in zip(boxes, names):
                     # 박스 그려주기
@@ -1046,6 +1048,21 @@ class FindAll(QDialog):  # 사용자 전체
                 break
         cap.release()
         print("Thread end.")
+        print(AllP)
+        checkRatio = {}
+
+        for i in AllP:
+            try:
+                checkRatio[i] += 1
+            except:
+                checkRatio[i] = 1
+
+        global labels
+        global pieRatio
+
+        for key, val in checkRatio.items():
+            labels.append(key)
+            pieRatio.append(val)
 
     def video_all(self, cap):
         knownEncodings = []
@@ -1161,7 +1178,7 @@ class FindAll(QDialog):  # 사용자 전체
 
     def gotopie(self):
         pie = PieChart()
-        pie.videostart()
+        pie.piestart()
         pie.exec_()
 
     def img_all(self, img):
@@ -1657,6 +1674,9 @@ class PieChart(QDialog):
         self.canvas = FigureCanvas(self.fig)
         self.verticalLayout_2.addWidget(self.canvas)
 
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+
         self.ratio = pieRatio
         self.labels = labels
         self.backButton.clicked.connect(self.stop)
@@ -1669,12 +1689,15 @@ class PieChart(QDialog):
         self.stop()
 
     def chart(self):
+
+        wedgeprops = {'width': 0.7, 'edgecolor': 'w', 'linewidth': 5}
         ax = self.fig.add_subplot()
-        ax.pie(self.ratio, labels=self.labels, autopct='%.1f%%')
+        ax.pie(self.ratio, labels=self.labels, autopct='%.1f%%', startangle=260, counterclock=False,
+               wedgeprops=wedgeprops)
         ax.grid()
         self.canvas.draw()
 
-    def videostart(self):
+    def piestart(self):
         global running
         running = True
         th = threading.Thread(target=self.chart)
@@ -1686,6 +1709,17 @@ class PieChart(QDialog):
         running = False
         print("stoped..")
         self.close()
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            self.move(self.pos() + event.pos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        self.offset = None
 
 
 class Login_Screen(QMainWindow):
