@@ -1680,6 +1680,7 @@ class PieChart(QDialog):
         self.ratio = pieRatio
         self.labels = labels
         self.backButton.clicked.connect(self.stop)
+        self.saveButton.clicked.connect(self.savepie)
 
     def __del__(self):
         global pieRatio
@@ -1696,6 +1697,9 @@ class PieChart(QDialog):
                wedgeprops=wedgeprops)
         ax.grid()
         self.canvas.draw()
+
+    def savepie(self):
+        self.fig.savefig('new.png')
 
     def piestart(self):
         global running

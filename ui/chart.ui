@@ -78,6 +78,46 @@ background-color:rgb(255, 170, 0);
      </property>
     </layout>
    </widget>
+   <widget class="QPushButton" name="saveButton">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>25</y>
+      <width>51</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial Black</family>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton#saveButton{
+background-color:rgb(255, 170, 0);
+color:rgba(255, 255, 255, 200);
+border-top-left-radius:5px;
+border-bottom-left-radius:5px;
+border-bottom-right-radius: 5px;
+border-top-right-radius: 5px;
+}
+QPushButton#saveButton:pressed{
+padding-left:5px;
+padding-top:5px;
+background-color:rgb(255, 170, 0);
+background-position:calc(100%-10px)center;
+}
+QPushButton#saveButton:hover{
+background-color:rgb(255, 170, 0);
+}</string>
+    </property>
+    <property name="text">
+     <string>s</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
