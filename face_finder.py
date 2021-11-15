@@ -1680,13 +1680,13 @@ class PieChart(QDialog):
 
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-
+        self.t1 = threading.Thread(target=self.chart)
+        self.t2 = threading.Thread(target=self.savepie)
         self.ratio = pieRatio
         self.labels = labels
         self.backButton.clicked.connect(self.stop)
         self.saveButton.clicked.connect(self.savestart)
-        self.chart()
-        print(threading.currentThread().getName())
+        self.start()
 
     def __del__(self):
         global pieRatio
@@ -1702,7 +1702,7 @@ class PieChart(QDialog):
                wedgeprops=wedgeprops)
         ax.grid()
         self.canvas.draw()
-        print('draw')
+        print(threading.currentThread().getName())
 
     def savepie(self):
         print(threading.currentThread().getName())
@@ -1719,11 +1719,18 @@ class PieChart(QDialog):
         print("stoped..")
         self.close()
 
+    def start(self):
+        global running
+        running = True
+        self.t1.start()
+
+        print("started..")
+
     def savestart(self):
         global running
         running = True
-        th = threading.Thread(target=self.savepie)
-        th.start()
+        self.t2.start()
+        self.t1.join()
         print("started..")
 
     def mousePressEvent(self, event):
