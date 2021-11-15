@@ -3,6 +3,7 @@ import pickle
 import sys
 import dlib
 import cv2
+import datetime
 import face_recognition
 from os import listdir
 from os.path import isfile, join
@@ -20,7 +21,7 @@ from matplotlib.figure import Figure
 import img
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import matplotlibwidgetFile
+
 
 print(dlib.DLIB_USE_CUDA)
 data_path = 'users/'  # 사용자 파일이 저장될 기본 경로
@@ -90,6 +91,7 @@ class Home_Screen(QMainWindow):
         self.pushButton_2.clicked.connect(self.gotolocal)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
         self.pushButton.clicked.connect(self.gotologin)
+        print(threading.currentThread().getName())
 
     def gotologin(self):
         login = Login_Screen()
@@ -1065,6 +1067,7 @@ class FindAll(QDialog):  # 사용자 전체
             pieRatio.append(val)
 
     def video_all(self, cap):
+        print(threading.currentThread().getName())
         knownEncodings = []
         knownNames = []
         AllP = []
@@ -1140,12 +1143,14 @@ class FindAll(QDialog):  # 사용자 전체
                     color = (255, 255, 0)
                     if name == 'unknown':
                         color = (255, 255, 255)
+
                         # 박스 그려주기
-                    cv2.rectangle(img, (left, top), (right, bottom),
-                                  color, 2)
-                    y = top - 15 if top - 15 > 15 else top + 15
-                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                                0.75, color, 2)
+                    else:
+                        cv2.rectangle(img, (left, top), (right, bottom),
+                                      color, 2)
+                        y = top - 15 if top - 15 > 15 else top + 15
+                        cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                    0.75, color, 2)
 
                 h, w, c = img.shape
                 self.label.resize(w, h)
@@ -1178,7 +1183,6 @@ class FindAll(QDialog):  # 사용자 전체
 
     def gotopie(self):
         pie = PieChart()
-        pie.piestart()
         pie.exec_()
 
     def img_all(self, img):
@@ -1680,14 +1684,15 @@ class PieChart(QDialog):
         self.ratio = pieRatio
         self.labels = labels
         self.backButton.clicked.connect(self.stop)
-        self.saveButton.clicked.connect(self.savepie)
+        self.saveButton.clicked.connect(self.savestart)
+        self.chart()
+        print(threading.currentThread().getName())
 
     def __del__(self):
         global pieRatio
         global labels
         pieRatio = []
         labels = []
-        self.stop()
 
     def chart(self):
 
@@ -1697,22 +1702,29 @@ class PieChart(QDialog):
                wedgeprops=wedgeprops)
         ax.grid()
         self.canvas.draw()
+        print('draw')
 
     def savepie(self):
-        self.fig.savefig('new.png')
-
-    def piestart(self):
-        global running
-        running = True
-        th = threading.Thread(target=self.chart)
-        th.start()
-        print("started..")
+        print(threading.currentThread().getName())
+        now_date = datetime.datetime.now()
+        now = now_date.strftime('%Y_%m_%d_%H_%M')
+        path = './chart'
+        createFolder(path)
+        file_path = path + '/' + now + '.jpg'
+        self.fig.savefig(file_path)
 
     def stop(self):
         global running
         running = False
         print("stoped..")
         self.close()
+
+    def savestart(self):
+        global running
+        running = True
+        th = threading.Thread(target=self.savepie)
+        th.start()
+        print("started..")
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
