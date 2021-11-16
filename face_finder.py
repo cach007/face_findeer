@@ -31,8 +31,6 @@ DB = pickle.loads(open("DBkey", "rb").read())  # 데이터베이스 비밀번호
 client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'
-labels = []
-pieRatio = []
 
 def load_data(path):  # 리스트 파일 로드 함수
     # 폴더가 있을때 파일이 없는경우 onlyfiles 폴더를 만들지 못함
@@ -940,12 +938,18 @@ class FindAll(QDialog):  # 사용자 전체
         self.setFixedWidth(880)
         self.setFixedHeight(660)
         self.url = url
+        self.labels = []
+        self.pieRatio = []
+        self.check = False
+        self.mosaic = False
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
+        self.effectButton.clicked.connect(self.mosaic_effect)
 
     def __del__(self):
-        self.gotopie()
+        if self.check:
+            self.gotopie()
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -969,7 +973,14 @@ class FindAll(QDialog):  # 사용자 전체
         video = cv2.VideoCapture(self.url)
         self.video_all(video)
 
+    def mosaic_effect(self):
+        if self.mosaic:
+            self.mosaic = False
+        else:
+            self.mosaic = True
+
     def run_all(self):
+        self.check = True
         knownEncodings = []
         knownNames = []
         AllP = []
@@ -1027,17 +1038,34 @@ class FindAll(QDialog):  # 사용자 전체
                     AllP.extend(names)
 
                 for ((top, right, bottom, left), name) in zip(boxes, names):
-                    # 박스 그려주기
 
                     color = (255, 255, 0)
                     if name == 'unknown':
-                        color = (255, 255, 255)
+                        if self.mosaic:
+                            # 모자이크
+                            w = right - left
+                            h = bottom - top
+                            print(int(w))
+                            print(int(h))
 
-                    cv2.rectangle(img, (left, top), (right, bottom),
-                                  color, 2)
-                    y = top - 15 if top - 15 > 15 else top + 15
-                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                                0.75, color, 2)
+                            face_image = img[top:bottom, left:right]
+                            mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
+                            mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
+                            img[top:bottom, left:right] = mosaic
+                        else:
+                            color = (255, 255, 255)
+                            cv2.rectangle(img, (left, top), (right, bottom),
+                                          color, 2)
+                            y = top - 15 if top - 15 > 15 else top + 15
+                            cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                        0.75, color, 2)
+
+                    else:
+                        cv2.rectangle(img, (left, top), (right, bottom),
+                                      color, 2)
+                        y = top - 15 if top - 15 > 15 else top + 15
+                        cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                    0.75, color, 2)
 
                 h, w, c = img.shape
                 print(h, w, c)
@@ -1059,15 +1087,13 @@ class FindAll(QDialog):  # 사용자 전체
             except:
                 checkRatio[i] = 1
 
-        global labels
-        global pieRatio
-
         for key, val in checkRatio.items():
-            labels.append(key)
-            pieRatio.append(val)
+            self.labels.append(key)
+            self.pieRatio.append(val)
 
     def video_all(self, cap):
         print(threading.currentThread().getName())
+        self.check = True
         knownEncodings = []
         knownNames = []
         AllP = []
@@ -1112,6 +1138,7 @@ class FindAll(QDialog):  # 사용자 전체
                 img = cv2.resize(img, (int(img.shape[1] * testR), int(img.shape[0] * testR)))
 
                 boxes = face_recognition.face_locations(img, model='CNN')
+
                 encodings = face_recognition.face_encodings(img, boxes)
                 names = []
                 for encoding in encodings:
@@ -1142,9 +1169,25 @@ class FindAll(QDialog):  # 사용자 전체
 
                     color = (255, 255, 0)
                     if name == 'unknown':
-                        color = (255, 255, 255)
+                        if self.mosaic:
+                            # 모자이크
+                            w = right - left
+                            h = bottom - top
+                            print(int(w))
+                            print(int(h))
 
-                        # 박스 그려주기
+                            face_image = img[top:bottom, left:right]
+                            mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
+                            mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
+                            img[top:bottom, left:right] = mosaic
+                        else:
+                            color = (255, 255, 255)
+                            cv2.rectangle(img, (left, top), (right, bottom),
+                                          color, 2)
+                            y = top - 15 if top - 15 > 15 else top + 15
+                            cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                        0.75, color, 2)
+
                     else:
                         cv2.rectangle(img, (left, top), (right, bottom),
                                       color, 2)
@@ -1174,15 +1217,12 @@ class FindAll(QDialog):  # 사용자 전체
             except:
                 checkRatio[i] = 1
 
-        global labels
-        global pieRatio
-
         for key, val in checkRatio.items():
-            labels.append(key)
-            pieRatio.append(val)
+            self.labels.append(key)
+            self.pieRatio.append(val)
 
     def gotopie(self):
-        pie = PieChart()
+        pie = PieChart(self.labels, self.pieRatio)
         pie.exec_()
 
     def img_all(self, img):
@@ -1277,12 +1317,23 @@ class FindAll(QDialog):  # 사용자 전체
             color = (255, 255, 0)
             if name == 'unknown':
                 color = (255, 255, 255)
-                # 박스 그리기
-            cv2.rectangle(img, (left, top), (right, bottom),
-                          color, 2)
-            y = top - 15 if top - 15 > 15 else top + 15
-            cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.75, color, 2)
+                # 모자이크
+                w = right - left
+                h = bottom - top
+                print(int(w))
+                print(int(h))
+
+                face_image = img[top:bottom, left:right]
+                mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
+                mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
+                img[top:bottom, left:right] = mosaic
+
+            else:
+                cv2.rectangle(img, (left, top), (right, bottom),
+                              color, 2)
+                y = top - 15 if top - 15 > 15 else top + 15
+                cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                            0.75, color, 2)
 
         h, w, c = img.shape
         print(h, w, c)
@@ -1671,7 +1722,7 @@ class Camera(QDialog):
 
 
 class PieChart(QDialog):
-    def __init__(self):
+    def __init__(self, labels, pieRatio):
         super().__init__()
         loadUi("ui/chart.ui", self)
         self.fig = plt.Figure()
@@ -1689,13 +1740,9 @@ class PieChart(QDialog):
         self.start()
 
     def __del__(self):
-        global pieRatio
-        global labels
-        pieRatio = []
-        labels = []
+        self.stop()
 
     def chart(self):
-
         wedgeprops = {'width': 0.7, 'edgecolor': 'w', 'linewidth': 5}
         ax = self.fig.add_subplot()
         ax.pie(self.ratio, labels=self.labels, autopct='%.1f%%', startangle=260, counterclock=False,
