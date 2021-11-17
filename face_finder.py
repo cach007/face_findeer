@@ -969,8 +969,12 @@ class FindAll(QDialog):  # 사용자 전체 탐색
     def mosaic_effect(self):
         if self.mosaic:
             self.mosaic = False
+            if not self.check:
+                self.imgstart()
         else:
             self.mosaic = True
+            if not self.check:
+                self.imgstart()
 
     def run_all(self):
         self.check = True
@@ -1309,8 +1313,6 @@ class FindAll(QDialog):  # 사용자 전체 탐색
                     # 모자이크
                     w = right - left
                     h = bottom - top
-                    print(int(w))
-                    print(int(h))
 
                     face_image = img[top:bottom, left:right]
                     mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
@@ -1372,6 +1374,7 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
         self.user = user
         self.url = url
         self.mosaic = False
+        self.check = False
         self.setFixedHeight(660)
         self.setFixedWidth(880)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -1408,10 +1411,15 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
     def mosaic_effect(self):
         if self.mosaic:
             self.mosaic = False
+            if not self.check:
+                self.imgstart()
         else:
             self.mosaic = True
+            if not self.check:
+                self.imgstart()
 
     def run(self, cap):
+        self.check = True
         knownEncodings = []
         knownNames = []
 
@@ -1515,6 +1523,7 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
         print("Thread end.")
 
     def video_run(self, cap):
+        self.check = True
         knownEncodings = []
         knownNames = []
 
@@ -1626,6 +1635,7 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
         print("Thread end.")
 
     def img_run(self, img):
+
         knownEncodings = []
         knownNames = []
         # 사용자 파일 불러오기
@@ -1716,12 +1726,29 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
 
             color = (255, 255, 0)
             if name == 'unknown':
-                color = (255, 255, 255)
-            cv2.rectangle(img, (left, top), (right, bottom),
-                          color, 2)
-            y = top - 15 if top - 15 > 15 else top + 15
-            cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.75, color, 2)
+                if self.mosaic:
+                    # 모자이크
+                    w = right - left
+                    h = bottom - top
+
+                    face_image = img[top:bottom, left:right]
+                    mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
+                    mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
+                    img[top:bottom, left:right] = mosaic
+                else:
+                    color = (255, 255, 255)
+                    cv2.rectangle(img, (left, top), (right, bottom),
+                                  color, 2)
+                    y = top - 15 if top - 15 > 15 else top + 15
+                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                0.75, color, 2)
+
+            else:
+                cv2.rectangle(img, (left, top), (right, bottom),
+                              color, 2)
+                y = top - 15 if top - 15 > 15 else top + 15
+                cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                            0.75, color, 2)
 
         h, w, c = img.shape
         print(h, w, c)
