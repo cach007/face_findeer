@@ -32,6 +32,7 @@ client = pymongo.MongoClient(DB)
 user_name = 'none'
 user = 'none'
 
+
 def load_data(path):  # 리스트 파일 로드 함수
     # 폴더가 있을때 파일이 없는경우 onlyfiles 폴더를 만들지 못함
     try:  # 폴더가 있는경우
@@ -45,14 +46,6 @@ def load_data(path):  # 리스트 파일 로드 함수
 def createFolder(directory):  # 폴더 생성 함수
     if not os.path.exists(directory):  # 해당 디렉토리가
         os.makedirs(directory)  # 디렉토리를 생성한다
-
-
-def open_folder():
-    # users 폴더 없을때 생성할수 있게 수정 완료
-    path = os.path.realpath(data_path)
-    createFolder(path)
-    os.startfile(path)
-
 
 def gotohome():
     home = Home_Screen()
@@ -931,7 +924,7 @@ class Detect(QMainWindow):
         widget.mouseReleaseEvent(event)
 
 
-class FindAll(QDialog):  # 사용자 전체
+class FindAll(QDialog):  # 사용자 전체 탐색
     def __init__(self, url):
         super().__init__()
         loadUi("ui/local.ui", self)
@@ -1045,8 +1038,6 @@ class FindAll(QDialog):  # 사용자 전체
                             # 모자이크
                             w = right - left
                             h = bottom - top
-                            print(int(w))
-                            print(int(h))
 
                             face_image = img[top:bottom, left:right]
                             mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
@@ -1068,7 +1059,7 @@ class FindAll(QDialog):  # 사용자 전체
                                     0.75, color, 2)
 
                 h, w, c = img.shape
-                print(h, w, c)
+
                 qImg = QtGui.QImage(img.data, w, h, w * c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
@@ -1173,8 +1164,6 @@ class FindAll(QDialog):  # 사용자 전체
                             # 모자이크
                             w = right - left
                             h = bottom - top
-                            print(int(w))
-                            print(int(h))
 
                             face_image = img[top:bottom, left:right]
                             mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
@@ -1197,7 +1186,7 @@ class FindAll(QDialog):  # 사용자 전체
 
                 h, w, c = img.shape
                 self.label.resize(w, h)
-                print(h, w, c)
+
                 qImg = QtGui.QImage(img.data, w, h, w * c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
@@ -1316,17 +1305,24 @@ class FindAll(QDialog):  # 사용자 전체
 
             color = (255, 255, 0)
             if name == 'unknown':
-                color = (255, 255, 255)
-                # 모자이크
-                w = right - left
-                h = bottom - top
-                print(int(w))
-                print(int(h))
+                if self.mosaic:
+                    # 모자이크
+                    w = right - left
+                    h = bottom - top
+                    print(int(w))
+                    print(int(h))
 
-                face_image = img[top:bottom, left:right]
-                mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
-                mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
-                img[top:bottom, left:right] = mosaic
+                    face_image = img[top:bottom, left:right]
+                    mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
+                    mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
+                    img[top:bottom, left:right] = mosaic
+                else:
+                    color = (255, 255, 255)
+                    cv2.rectangle(img, (left, top), (right, bottom),
+                                  color, 2)
+                    y = top - 15 if top - 15 > 15 else top + 15
+                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                0.75, color, 2)
 
             else:
                 cv2.rectangle(img, (left, top), (right, bottom),
@@ -1336,7 +1332,7 @@ class FindAll(QDialog):  # 사용자 전체
                             0.75, color, 2)
 
         h, w, c = img.shape
-        print(h, w, c)
+
         qImg = QtGui.QImage(img.data, w, h, w * c, QtGui.QImage.Format_RGB888)
         pixmap = QtGui.QPixmap.fromImage(qImg)
         self.label.setPixmap(pixmap)
@@ -1369,17 +1365,19 @@ class FindAll(QDialog):  # 사용자 전체
         print("started..")
 
 
-class Camera(QDialog):
+class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
     def __init__(self, user, url):
         super().__init__()
         loadUi("ui/local.ui", self)
         self.user = user
         self.url = url
+        self.mosaic = False
         self.setFixedHeight(660)
         self.setFixedWidth(880)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
+        self.effectButton.clicked.connect(self.mosaic_effect)
 
     def __del__(self):
         self.stop()
@@ -1406,6 +1404,12 @@ class Camera(QDialog):
     def video(self):
         video = cv2.VideoCapture(self.url)
         self.video_run(video)
+
+    def mosaic_effect(self):
+        if self.mosaic:
+            self.mosaic = False
+        else:
+            self.mosaic = True
 
     def run(self, cap):
         knownEncodings = []
@@ -1474,16 +1478,32 @@ class Camera(QDialog):
 
                     color = (255, 255, 0)
                     if name == 'unknown':
-                        color = (255, 255, 255)
+                        if self.mosaic:
+                            # 모자이크
+                            w = right - left
+                            h = bottom - top
 
-                    cv2.rectangle(img, (left, top), (right, bottom),
-                                  color, 2)
-                    y = top - 15 if top - 15 > 15 else top + 15
-                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                                0.75, color, 2)
+                            face_image = img[top:bottom, left:right]
+                            mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
+                            mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
+                            img[top:bottom, left:right] = mosaic
+                        else:
+                            color = (255, 255, 255)
+                            cv2.rectangle(img, (left, top), (right, bottom),
+                                          color, 2)
+                            y = top - 15 if top - 15 > 15 else top + 15
+                            cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                        0.75, color, 2)
+
+                    else:
+                        cv2.rectangle(img, (left, top), (right, bottom),
+                                      color, 2)
+                        y = top - 15 if top - 15 > 15 else top + 15
+                        cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                    0.75, color, 2)
 
                 h, w, c = img.shape
-                print(h, w, c)
+
                 qImg = QtGui.QImage(img.data, w, h, w * c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
@@ -1568,17 +1588,33 @@ class Camera(QDialog):
 
                     color = (255, 255, 0)
                     if name == 'unknown':
-                        color = (255, 255, 255)
+                        if self.mosaic:
+                            # 모자이크
+                            w = right - left
+                            h = bottom - top
 
-                    cv2.rectangle(img, (left, top), (right, bottom),
-                                  color, 2)
-                    y = top - 15 if top - 15 > 15 else top + 15
-                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                                0.75, color, 2)
+                            face_image = img[top:bottom, left:right]
+                            mosaic = cv2.resize(face_image, dsize=(0, 0), fx=0.1, fy=0.1)
+                            mosaic = cv2.resize(mosaic, (int(w), int(h)), interpolation=cv2.INTER_AREA)
+                            img[top:bottom, left:right] = mosaic
+                        else:
+                            color = (255, 255, 255)
+                            cv2.rectangle(img, (left, top), (right, bottom),
+                                          color, 2)
+                            y = top - 15 if top - 15 > 15 else top + 15
+                            cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                        0.75, color, 2)
+
+                    else:
+                        cv2.rectangle(img, (left, top), (right, bottom),
+                                      color, 2)
+                        y = top - 15 if top - 15 > 15 else top + 15
+                        cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                    0.75, color, 2)
 
                 h, w, c = img.shape
                 self.label.resize(w, h)
-                print(h, w, c)
+
                 qImg = QtGui.QImage(img.data, w, h, w * c, QtGui.QImage.Format_RGB888)
                 pixmap = QtGui.QPixmap.fromImage(qImg)
                 self.label.setPixmap(pixmap)
