@@ -123,7 +123,17 @@ background-color:rgb(255, 170, 0);
 }</string>
     </property>
     <property name="text">
-     <string>s</string>
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>../img/privacy.png</normaloff>../img/privacy.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>25</width>
+      <height>25</height>
+     </size>
     </property>
     <property name="autoDefault">
      <bool>false</bool>

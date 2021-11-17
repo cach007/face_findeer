@@ -118,11 +118,26 @@ background-color:rgb(255, 170, 0);
 }</string>
     </property>
     <property name="text">
-     <string>s</string>
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>../img/save.png</normaloff>../img/save.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>22</width>
+      <height>21</height>
+     </size>
+    </property>
+    <property name="autoRepeatInterval">
+     <number>100</number>
     </property>
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../img/img.qrc"/>
+ </resources>
  <connections/>
 </ui>
