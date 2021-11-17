@@ -943,6 +943,9 @@ class FindAll(QDialog):  # 사용자 전체 탐색
     def __del__(self):
         if self.check:
             self.gotopie()
+        elif not self.check and self.mosaic is True:
+            # 모자이크된 사진을 저장 받는 창 만들어서 안내 띄워주기 Qmessage
+            pass
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
