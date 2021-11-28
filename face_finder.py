@@ -939,6 +939,8 @@ class FindAll(QDialog):  # 사용자 전체 탐색
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
         self.effectButton.clicked.connect(self.mosaic_effect)
+        self.saveButton.clicked.connect(self.saveImg)
+        self.saveButton.setDisabled(True)
 
     def __del__(self):
         if self.check:
@@ -1221,7 +1223,18 @@ class FindAll(QDialog):  # 사용자 전체 탐색
         pie = PieChart(self.labels, self.pieRatio)
         pie.exec_()
 
+    def saveImg(self):
+        # 파일 이름을 이를 + 모자이크로 저장
+        img = self.label.pixmap()
+        img.save('name.jpg')
+
     def img_all(self, img):
+
+        if self.mosaic:
+            self.saveButton.setEnabled(True)
+        else:
+            self.saveButton.setDisabled(True)
+
         knownEncodings = []
         knownNames = []
 
@@ -1313,7 +1326,7 @@ class FindAll(QDialog):  # 사용자 전체 탐색
             color = (255, 255, 0)
             if name == 'unknown':
                 if self.mosaic:
-                    # 모자이크
+                    # 모자이크  버튼 눌렸을때
                     w = right - left
                     h = bottom - top
 
@@ -1805,11 +1818,8 @@ class PieChart(QDialog):
         self.saveButton.clicked.connect(self.savestart)
         self.start()
 
-    def __del__(self):
-        self.stop()
-
     def chart(self):
-        wedgeprops = {'width': 0.7, 'edgecolor': 'w', 'linewidth': 5}
+        wedgeprops = {'width': 0.7, 'edgecolor': 'w', 'linewidth': 10}
         ax = self.fig.add_subplot()
         ax.pie(self.ratio, labels=self.labels, autopct='%.1f%%', startangle=260, counterclock=False,
                wedgeprops=wedgeprops)
@@ -1824,6 +1834,7 @@ class PieChart(QDialog):
         path = './chart'
         createFolder(path)
         file_path = path + '/' + now + '.jpg'
+
         self.fig.savefig(file_path)
 
     def stop(self):
@@ -1977,6 +1988,7 @@ class Reg_Screen(QMainWindow):
                 QMessageBox.about(self, "INFO", "사용가능한 아이디 입니다.")
                 self.pushButton.setEnabled(True)
                 self.lineEdit.setDisabled(True)  # 아이디 검사 되면 못바꾸게 잠구기
+                self.pushButton_2.setDisabled(True)
 
         else:
             QMessageBox.about(self, "Warning", "아이디를 입력해주세요.")
