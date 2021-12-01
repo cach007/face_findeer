@@ -945,9 +945,6 @@ class FindAll(QDialog):  # 사용자 전체 탐색
     def __del__(self):
         if self.check:
             self.gotopie()
-        elif not self.check and self.mosaic is True:
-            # 모자이크된 사진을 저장 받는 창 만들어서 안내 띄워주기 Qmessage
-            pass
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -1225,8 +1222,13 @@ class FindAll(QDialog):  # 사용자 전체 탐색
 
     def saveImg(self):
         # 파일 이름을 이를 + 모자이크로 저장
+        now_date = datetime.datetime.now()
+        now = now_date.strftime('%Y_%m_%d_%H_%M')
+        path = './mosaic'
+        createFolder(path)
+        file_path = path + '/' + now + '.jpg'
         img = self.label.pixmap()
-        img.save('name.jpg')
+        img.save(file_path)
 
     def img_all(self, img):
 
@@ -1397,6 +1399,8 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.backButton.clicked.connect(self.stop)
         self.effectButton.clicked.connect(self.mosaic_effect)
+        self.saveButton.clicked.connect(self.saveImg)
+        self.saveButton.setDisabled(True)
 
     def __del__(self):
         self.stop()
@@ -1650,7 +1654,22 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
         cap.release()
         print("Thread end.")
 
+    def saveImg(self):
+        # 파일 이름을 이를 + 모자이크로 저장
+        now_date = datetime.datetime.now()
+        now = now_date.strftime('%Y_%m_%d_%H_%M')
+        path = './mosaic'
+        createFolder(path)
+        file_path = path + '/' + now + '.jpg'
+        img = self.label.pixmap()
+        img.save(file_path)
+
     def img_run(self, img):
+
+        if self.mosaic:
+            self.saveButton.setEnabled(True)
+        else:
+            self.saveButton.setDisabled(True)
 
         knownEncodings = []
         knownNames = []
@@ -1807,15 +1826,12 @@ class PieChart(QDialog):
         self.fig = plt.Figure()
         self.canvas = FigureCanvas(self.fig)
         self.verticalLayout_2.addWidget(self.canvas)
-
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        self.t1 = threading.Thread(target=self.chart)
-        self.t2 = threading.Thread(target=self.savepie)
         self.ratio = pieRatio
         self.labels = labels
-        self.backButton.clicked.connect(self.stop)
-        self.saveButton.clicked.connect(self.savestart)
+        self.backButton.clicked.connect(self.close)
+        self.saveButton.clicked.connect(self.savepie)
         self.start()
 
     def chart(self):
@@ -1828,33 +1844,28 @@ class PieChart(QDialog):
         print(threading.currentThread().getName())
 
     def savepie(self):
+        check = True
         print(threading.currentThread().getName())
         now_date = datetime.datetime.now()
         now = now_date.strftime('%Y_%m_%d_%H_%M')
         path = './chart'
         createFolder(path)
-        file_path = path + '/' + now + '.jpg'
+        file_name = now + '.jpg'
+        file_path = path + '/' + file_name
+        onlyfiles = load_data('chart/')
+        for i in onlyfiles:
+            if i == file_name:
+                print('same')
+                check = False
 
-        self.fig.savefig(file_path)
-
-    def stop(self):
-        global running
-        running = False
-        print("stoped..")
-        self.close()
+        if check:
+            chart = self.fig
+            chart.savefig(file_path)
+            QMessageBox.about(self, 'info', 'PieChart Saved')
 
     def start(self):
-        global running
-        running = True
+        self.t1 = threading.Thread(target=self.chart)
         self.t1.start()
-
-        print("started..")
-
-    def savestart(self):
-        global running
-        running = True
-        self.t2.start()
-        self.t1.join()
         print("started..")
 
     def mousePressEvent(self, event):
@@ -2368,7 +2379,7 @@ class Approve(QDialog):
         self.label_2.setAlignment(Qt.AlignCenter)
         self.pushButton_3.clicked.connect(self.close)
         self.pushButton.clicked.connect(self.app_user)
-
+        self.pushButton_4.clicked.connect(self.memberdel)
         self.pushButton_2.clicked.connect(self.un_user)
 
     def mousePressEvent(self, event):
@@ -2381,6 +2392,16 @@ class Approve(QDialog):
 
     def mouseReleaseEvent(self, event):
         self.offset = None
+
+    def memberdel(self):
+
+        if self.listWidget.currentItem():
+            selected_user = self.listWidget.currentItem().text()
+        elif self.listWidget_2.currentItem():
+            selected_user = self.listWidget_2.currentItem().text()
+
+        self.collection.delete_one({"name": selected_user})
+        self.listset()
 
     def listset(self):
         self.listWidget.clear()
