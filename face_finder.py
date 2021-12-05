@@ -1857,6 +1857,7 @@ class PieChart(QDialog):
             if i == file_name:
                 print('same')
                 check = False
+                QMessageBox.about(self, 'warning','잠시후에 다시 시도해주세요')
 
         if check:
             chart = self.fig
@@ -1864,8 +1865,8 @@ class PieChart(QDialog):
             QMessageBox.about(self, 'info', 'PieChart Saved')
 
     def start(self):
-        self.t1 = threading.Thread(target=self.chart)
-        self.t1.start()
+        t1 = threading.Thread(target=self.chart)
+        t1.start()
         print("started..")
 
     def mousePressEvent(self, event):
@@ -2320,13 +2321,13 @@ class Admin_Page(QMainWindow):
         self.setFixedWidth(400)
         self.label.setText(user_name)
         self.label.setAlignment(Qt.AlignCenter)
-        self.pushButton.clicked.connect(self.gotodetect)
         self.pushButton_2.clicked.connect(logoutstate)  # 로그아웃 버튼
         self.pushButton_4.clicked.connect(self.gotodb)  # 데이터 베이스 접근 버튼 -> 업로드 다운로드
         self.pushButton_5.clicked.connect(self.gotoapp)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
         self.pushButton_6.clicked.connect(self.gotouser)
 
+        self.pushButton.clicked.connect(self.gotodetect)
     def gotouser(self):
         useredit = User_Edit('admin')
         widget.addWidget(useredit)
@@ -2343,8 +2344,9 @@ class Admin_Page(QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def gotoapp(self):
-        apr = Approve()
-        apr.exec_()
+        unapp = UnApproved()
+        widget.addWidget(unapp)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -2363,80 +2365,154 @@ class Admin_Page(QMainWindow):
         widget.mouseReleaseEvent(event)
 
 
-class Approve(QDialog):
+class UnApproved(QMainWindow):
+        def __init__(self):
+            super().__init__()
+            loadUi("ui/unapproved.ui", self)
+            self.setFixedHeight(600)
+            self.setFixedWidth(400)
+            self.db = client["member"]
+            self.collection = self.db["member"]
+            self.label.setText('승인대기')
+            self.label.setAlignment(Qt.AlignCenter)
+            self.pushButton_2.clicked.connect(logoutstate)  # 로그아웃 버튼
+            self.pushButton.clicked.connect(self.app_user)  # 승인버튼
+            self.pushButton_5.clicked.connect(self.switch)  # 화면전환 버튼
+            self.pushButton_4.clicked.connect(self.memberdel)  # 아이디 삭제 버튼
+            self.backButton.clicked.connect(self.back)
+            self.listset()
+            self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
+
+        def listset(self):
+            self.listWidget.clear()
+
+            a = self.collection.find({"approved": False})
+
+            for data in a:
+                self.listWidget.addItem(data['name'])
+
+        def memberdel(self):  # 아이디 삭제
+
+            if self.listWidget.currentItem():
+                selected_user = self.listWidget.currentItem().text()
+                self.collection.delete_one({"name": selected_user})
+                QMessageBox.about(self, "Success", selected_user + "삭제 완료")
+            else:
+                QMessageBox.about(self, "Warning", "삭제할 아이디를 선택해주세요")
+
+            self.listset()
+
+        def app_user(self):  # 승인 안된 회원 리스트에서 선택하여 승인 시켜주는 함수
+
+            if self.listWidget.currentItem():
+                selected_user = self.listWidget.currentItem().text()
+                print(selected_user)
+
+                self.collection.update({"name": selected_user}, {"$set": {"approved": True}})
+                QMessageBox.about(self, "Success", selected_user + "승인 완료")
+                self.listset()
+            else:
+                QMessageBox.about(self, "Warning", "승인할 아이디를 선택해주세요")
+
+        def switch(self):
+            app = Approved()
+            widget.addWidget(app)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+
+        def back(self):
+            admin = Admin_Page()
+            widget.addWidget(admin)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+
+        def mousePressEvent(self, event):
+            if event.button() == QtCore.Qt.LeftButton:
+                widget.offset = event.pos()
+            else:
+                widget.mousePressEvent(event)
+
+        def mouseMoveEvent(self, event):
+            if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+                widget.move(widget.pos() + event.pos() - widget.offset)
+            else:
+                widget.mouseMoveEvent(event)
+
+        def mouseReleaseEvent(self, event):
+            widget.offset = None
+            widget.mouseReleaseEvent(event)
+
+
+class Approved(QMainWindow):
     def __init__(self):
         super().__init__()
-        loadUi("ui/regcheck.ui", self)
-        self.setFixedHeight(330)
-        self.setFixedWidth(600)
+        loadUi("ui/approved.ui", self)
+        self.setFixedHeight(600)
+        self.setFixedWidth(400)
         self.db = client["member"]
         self.collection = self.db["member"]
-        self.label.setText('승인대기')
-        self.label_2.setText('승인완료')
-        self.listset()
-        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.label.setText('승인완료')
         self.label.setAlignment(Qt.AlignCenter)
-        self.label_2.setAlignment(Qt.AlignCenter)
-        self.pushButton_3.clicked.connect(self.close)
-        self.pushButton.clicked.connect(self.app_user)
-        self.pushButton_4.clicked.connect(self.memberdel)
-        self.pushButton_2.clicked.connect(self.un_user)
-
-    def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
-            self.offset = event.pos()
-
-    def mouseMoveEvent(self, event):
-        if self.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
-            self.move(self.pos() + event.pos() - self.offset)
-
-    def mouseReleaseEvent(self, event):
-        self.offset = None
-
-    def memberdel(self):
-
-        if self.listWidget.currentItem():
-            selected_user = self.listWidget.currentItem().text()
-        elif self.listWidget_2.currentItem():
-            selected_user = self.listWidget_2.currentItem().text()
-
-        self.collection.delete_one({"name": selected_user})
+        self.pushButton_2.clicked.connect(logoutstate)  # 로그아웃 버튼
+        self.pushButton.clicked.connect(self.unapp_user)  # 승인취소버튼
+        self.pushButton_5.clicked.connect(self.switch)  # 화면전환 버튼
+        self.pushButton_4.clicked.connect(self.memberdel)  # 아이디 삭제 버튼
+        self.backButton.clicked.connect(self.back)
         self.listset()
+        self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)  # quit 버튼 (종료)
 
     def listset(self):
         self.listWidget.clear()
-        self.listWidget_2.clear()
+        a = self.collection.find({"approved": True, "admin": False})
+        for data in a:
+            self.listWidget.addItem(data['name'])
 
-        a = self.collection.find({"approved": False})
-        b = self.collection.find({"approved": True, "admin": False})
-        print(a)
-        for unapp in a:
-            self.listWidget.addItem(unapp['name'])
+    def memberdel(self):  # 아이디 삭제
 
-        for app in b:
-            self.listWidget_2.addItem(app['name'])
+        if self.listWidget.currentItem():
+            selected_user = self.listWidget.currentItem().text()
+            self.collection.delete_one({"name": selected_user})
+            QMessageBox.about(self, "Success", selected_user + "삭제 완료")
+        else:
+            QMessageBox.about(self, "Warning", "삭제할 아이디를 선택해주세요")
 
-    def app_user(self):  # 승인 안된 회원 리스트에서 선택하여 승인 시켜주는 함수
+        self.listset()
+
+    def unapp_user(self):  # 승인된 회원을 승인취소
 
         if self.listWidget.currentItem():
             selected_user = self.listWidget.currentItem().text()
             print(selected_user)
 
-            self.collection.update({"name": selected_user}, {"$set": {"approved": True}})
-            self.listset()
-        else:
-            print("non")
-
-    def un_user(self):
-        if self.listWidget_2.currentItem():
-
-            selected_user = self.listWidget_2.currentItem().text()
-            print(selected_user)
-
             self.collection.update({"name": selected_user}, {"$set": {"approved": False}})
+            QMessageBox.about(self, "Success", selected_user + "승인 취소")
             self.listset()
         else:
-            print("non")
+            QMessageBox.about(self, "Warning", "승인할 아이디를 선택해주세요")
+
+    def switch(self):
+        unapp = UnApproved()
+        widget.addWidget(unapp)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    def back(self):
+        admin = Admin_Page()
+        widget.addWidget(admin)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            widget.offset = event.pos()
+        else:
+            widget.mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if widget.offset is not None and event.buttons() == QtCore.Qt.LeftButton:
+            widget.move(widget.pos() + event.pos() - widget.offset)
+        else:
+            widget.mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        widget.offset = None
+        widget.mouseReleaseEvent(event)
 
 
 if __name__ == '__main__':

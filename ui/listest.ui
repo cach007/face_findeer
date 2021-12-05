@@ -109,6 +109,9 @@ background-color:rgb(255, 170, 0);
       <bold>false</bold>
      </font>
     </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;선택한 사용자를 탐색&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">QPushButton#pushButton{
 background-color:rgba(2,65,118,255);
@@ -156,6 +159,9 @@ background-color:rgba(2,65,118, 255);
       <weight>50</weight>
       <bold>false</bold>
      </font>
+    </property>
+    <property name="whatsThis">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;전체 사용자를 탐색&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton#pushButton_2{
