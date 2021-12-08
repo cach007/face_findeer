@@ -123,8 +123,8 @@ background-color:rgb(255, 170, 0);
      <string/>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../img/save.png</normaloff>../img/save.png</iconset>
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/save.png</normaloff>:/newPrefix/save.png</iconset>
     </property>
     <property name="iconSize">
      <size>

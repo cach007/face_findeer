@@ -47,6 +47,7 @@ def createFolder(directory):  # 폴더 생성 함수
     if not os.path.exists(directory):  # 해당 디렉토리가
         os.makedirs(directory)  # 디렉토리를 생성한다
 
+
 def gotohome():
     home = Home_Screen()
     widget.addWidget(home)
@@ -502,7 +503,7 @@ class Get_Name(QDialog):
 class Add_Cam(QDialog):
     def __init__(self, user):
         super().__init__()
-        loadUi("ui/local.ui", self)
+        loadUi("ui/addcam.ui", self)
         self.user = user
         self.setFixedHeight(660)
         self.setFixedWidth(880)
@@ -609,7 +610,7 @@ class Add_Cam(QDialog):
 class Extra_Cam(QDialog):
     def __init__(self, user):
         super().__init__()
-        loadUi("ui/local.ui", self)
+        loadUi("ui/addcam.ui", self)
         self.user = user
         self.setFixedHeight(660)
         self.setFixedWidth(880)
@@ -717,6 +718,7 @@ class Extra_Cam(QDialog):
         th = threading.Thread(target=self.run)
         th.start()
         print("started..")
+
 
 class Choose_One(QMainWindow):
     def __init__(self, user, level):
@@ -1217,8 +1219,11 @@ class FindAll(QDialog):  # 사용자 전체 탐색
             self.pieRatio.append(val)
 
     def gotopie(self):
-        pie = PieChart(self.labels, self.pieRatio)
-        pie.exec_()
+        if not self.labels:     # 인식된 사람이 없으면 차트를 그리지 않는다
+            pass
+        else:
+            pie = PieChart(self.labels, self.pieRatio)
+            pie.exec_()
 
     def saveImg(self):
         # 파일 이름을 이를 + 모자이크로 저장
@@ -1228,7 +1233,11 @@ class FindAll(QDialog):  # 사용자 전체 탐색
         createFolder(path)
         file_path = path + '/' + now + '.jpg'
         img = self.label.pixmap()
-        img.save(file_path)
+        try:
+            img.save(file_path)
+            QMessageBox.about(self, 'Success', '저장되었습니다')
+        except:
+            QMessageBox.about(self, 'Warning', '다시시도해주세요')
 
     def img_all(self, img):
 
@@ -1345,11 +1354,14 @@ class FindAll(QDialog):  # 사용자 전체 탐색
                                 0.75, color, 2)
 
             else:
-                cv2.rectangle(img, (left, top), (right, bottom),
-                              color, 2)
-                y = top - 15 if top - 15 > 15 else top + 15
-                cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                            0.75, color, 2)
+                if self.mosaic:
+                    pass
+                else:
+                    cv2.rectangle(img, (left, top), (right, bottom),
+                                  color, 2)
+                    y = top - 15 if top - 15 > 15 else top + 15
+                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                0.75, color, 2)
 
         h, w, c = img.shape
 
@@ -1662,7 +1674,11 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
         createFolder(path)
         file_path = path + '/' + now + '.jpg'
         img = self.label.pixmap()
-        img.save(file_path)
+        try:
+            img.save(file_path)
+            QMessageBox.about(self, 'Success', '저장되었습니다')
+        except:
+            QMessageBox.about(self, 'Warning', '다시시도해주세요')
 
     def img_run(self, img):
 
@@ -1779,11 +1795,14 @@ class Camera(QDialog):  # 단일 탐색 (사용자 선택 탐색)
                                 0.75, color, 2)
 
             else:
-                cv2.rectangle(img, (left, top), (right, bottom),
-                              color, 2)
-                y = top - 15 if top - 15 > 15 else top + 15
-                cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
-                            0.75, color, 2)
+                if self.mosaic:
+                    pass
+                else:
+                    cv2.rectangle(img, (left, top), (right, bottom),
+                                  color, 2)
+                    y = top - 15 if top - 15 > 15 else top + 15
+                    cv2.putText(img, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
+                                0.75, color, 2)
 
         h, w, c = img.shape
         print(h, w, c)
@@ -1832,20 +1851,19 @@ class PieChart(QDialog):
         self.labels = labels
         self.backButton.clicked.connect(self.close)
         self.saveButton.clicked.connect(self.savepie)
-        self.start()
+        self.chart()
 
     def chart(self):
+
         wedgeprops = {'width': 0.7, 'edgecolor': 'w', 'linewidth': 10}
         ax = self.fig.add_subplot()
         ax.pie(self.ratio, labels=self.labels, autopct='%.1f%%', startangle=260, counterclock=False,
                wedgeprops=wedgeprops)
         ax.grid()
         self.canvas.draw()
-        print(threading.currentThread().getName())
 
     def savepie(self):
-        check = True
-        print(threading.currentThread().getName())
+        same = True
         now_date = datetime.datetime.now()
         now = now_date.strftime('%Y_%m_%d_%H_%M')
         path = './chart'
@@ -1856,18 +1874,13 @@ class PieChart(QDialog):
         for i in onlyfiles:
             if i == file_name:
                 print('same')
-                check = False
-                QMessageBox.about(self, 'warning','잠시후에 다시 시도해주세요')
+                same = False
+                QMessageBox.about(self, 'warning', '잠시후에 다시 시도해주세요')
 
-        if check:
+        if same:
             chart = self.fig
             chart.savefig(file_path)
             QMessageBox.about(self, 'info', 'PieChart Saved')
-
-    def start(self):
-        t1 = threading.Thread(target=self.chart)
-        t1.start()
-        print("started..")
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -2523,3 +2536,4 @@ if __name__ == '__main__':
     widget.setWindowFlags(Qt.FramelessWindowHint)
     widget.show()
     app.exec_()
+

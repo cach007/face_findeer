@@ -7,6 +7,9 @@ conda env create -f env.yml
 
 
 
+
+
+
 그래픽 카드로 프로그램을 실행하려면 중간때와같이 
 가상환경 activate 시킨후에
 

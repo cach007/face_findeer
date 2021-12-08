@@ -126,8 +126,8 @@ background-color:rgb(255, 170, 0);
      <string/>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../img/privacy.png</normaloff>../img/privacy.png</iconset>
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/privacy.png</normaloff>:/newPrefix/privacy.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -182,8 +182,8 @@ background-color:rgb(255, 170, 0);
      <string/>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../img/save.png</normaloff>../img/save.png</iconset>
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/save.png</normaloff>:/newPrefix/save.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -197,6 +197,8 @@ background-color:rgb(255, 170, 0);
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../img/img.qrc"/>
+ </resources>
  <connections/>
 </ui>

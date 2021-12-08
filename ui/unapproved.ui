@@ -68,8 +68,8 @@ background-color:rgba(2,65,118, 255);
      <string>Approved</string>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../img/add-friend.png</normaloff>../img/add-friend.png</iconset>
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/remove-user2.png</normaloff>:/newPrefix/remove-user2.png</iconset>
     </property>
     <property name="iconSize">
      <size>
@@ -266,8 +266,8 @@ background-color:rgba(2,65,118, 255);
      <string>Switch</string>
     </property>
     <property name="icon">
-     <iconset>
-      <normaloff>../img/remove-user2.png</normaloff>../img/remove-user2.png</iconset>
+     <iconset resource="../img/img.qrc">
+      <normaloff>:/newPrefix/add-friend.png</normaloff>:/newPrefix/add-friend.png</iconset>
     </property>
     <property name="iconSize">
      <size>
