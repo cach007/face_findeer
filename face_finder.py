@@ -2427,7 +2427,7 @@ class UnApproved(QMainWindow):
             else:
                 QMessageBox.about(self, "Warning", "승인할 아이디를 선택해주세요")
 
-        def switch(self):
+        def switch(self):   #
             app = Approved()
             widget.addWidget(app)
             widget.setCurrentIndex(widget.currentIndex() + 1)
