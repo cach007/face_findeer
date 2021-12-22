@@ -1,3 +1,4 @@
+# 박진홍이 만듬 졸업작품임
 import os
 import pickle
 import sys
@@ -2536,4 +2537,3 @@ if __name__ == '__main__':
     widget.setWindowFlags(Qt.FramelessWindowHint)
     widget.show()
     app.exec_()
-
